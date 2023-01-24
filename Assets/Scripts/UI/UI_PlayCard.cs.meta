@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 04516744dd1b4d747a54ca2fae04ed8f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - cardName: {instanceID: 0}
+  - cardImage: {instanceID: 0}
+  - subtitle: {instanceID: 0}
+  - quote: {instanceID: 0}
+  - backgroundImage: {instanceID: 0}
+  - resourcePrefab: {fileID: 11095225222324860, guid: 4f7fb32b1b64ace419d04c857d112167, type: 3}
+  - flagPrefab: {fileID: 8645767237041377263, guid: 66357d833e2dbfd4f9b8e1563c97afbd, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

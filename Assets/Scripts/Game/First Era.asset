@@ -1,0 +1,272 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edc6f452033a9df4eb4633e17e743e97, type: 3}
+  m_Name: First Era
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects:
+    - {fileID: 11400000, guid: f3958a6fbdbb310408a5a812afba7383, type: 2}
+    - {fileID: 11400000, guid: b47400d6c1ce17548b2fe6b6fd25c535, type: 2}
+    - {fileID: 11400000, guid: fc089731faf424941be7ab7277efef31, type: 2}
+    - {fileID: 11400000, guid: 3a75d453553a4ef40ab7220c5d5f9aba, type: 2}
+    - {fileID: 11400000, guid: 8b50307079a1ff84484c98a70200b39b, type: 2}
+    - {fileID: 11400000, guid: e394312dd003d9b4c885cdc41cf6d602, type: 2}
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: <Rewards>k__BackingField
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[moon.Flag, Assembly-CSharp],[System.Collections.Generic.List`1[[moon.Resource,
+        Assembly-CSharp]], mscorlib]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.ObjectEqualityComparer`1[[moon.Flag, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 5
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 10
+      Data: 0
+    - Name: $v
+      Entry: 7
+      Data: 2|System.Collections.Generic.List`1[[moon.Resource, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 10
+      Data: 2
+    - Name: $v
+      Entry: 7
+      Data: 3|System.Collections.Generic.List`1[[moon.Resource, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 10
+      Data: 3
+    - Name: $v
+      Entry: 7
+      Data: 4|System.Collections.Generic.List`1[[moon.Resource, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 10
+      Data: 4
+    - Name: $v
+      Entry: 7
+      Data: 5|System.Collections.Generic.List`1[[moon.Resource, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 10
+      Data: 5
+    - Name: $v
+      Entry: 7
+      Data: 6|System.Collections.Generic.List`1[[moon.Resource, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: <Phases>k__BackingField
+      Entry: 7
+      Data: 7|System.Collections.Generic.List`1[[moon.Phase, Assembly-CSharp]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 7
+      Data: 8|moon.ProductionPhase, Assembly-CSharp
+    - Name: PhaseStartEvent
+      Entry: 6
+      Data: 
+    - Name: PhaseEndEvent
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 9|moon.ConstructionPhase, Assembly-CSharp
+    - Name: PhaseStartEvent
+      Entry: 6
+      Data: 
+    - Name: PhaseEndEvent
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 10|moon.ScoringPhase, Assembly-CSharp
+    - Name: PhaseStartEvent
+      Entry: 6
+      Data: 
+    - Name: PhaseEndEvent
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  <Deck>k__BackingField:
+  - {fileID: 11400000, guid: 5d3a8dfefb7919240928babed9246f50, type: 2}
+  - {fileID: 11400000, guid: 5a4a43c9adaf3be4db8ace7e9cce7a65, type: 2}
+  - {fileID: 11400000, guid: 6789a4b526eaa7943a6af2e842607b81, type: 2}
+  - {fileID: 11400000, guid: 79eab400cf65c474687ea1f97ab874a9, type: 2}
+  - {fileID: 11400000, guid: c862e46b8ae9b904eae7623576359efe, type: 2}
+  - {fileID: 11400000, guid: c0a2a4c229c5faa48bb8da6fe879ef98, type: 2}
+  - {fileID: 11400000, guid: 19b2e3057ca13e64588b225432bd713c, type: 2}
+  - {fileID: 11400000, guid: bfdd4052f657c8743919078cbf9a8163, type: 2}
+  - {fileID: 11400000, guid: 7296aacbbdab7574e9293757b69013f7, type: 2}
+  - {fileID: 11400000, guid: a8ddbe8ff4a21a44f818ba67142f51f4, type: 2}
+  - {fileID: 11400000, guid: eaaa7cb9248cd7a40a2090b4b97353b1, type: 2}
+  - {fileID: 11400000, guid: 67209fb4bea707249968dd09d9a1bebe, type: 2}
+  - {fileID: 11400000, guid: b880b1cedeaebee4e86cdcfa8564c2c0, type: 2}
+  - {fileID: 11400000, guid: 9e2d70d7b568d354fa0fc1eb2c75da0b, type: 2}
+  - {fileID: 11400000, guid: 51156ef5f41a0194aa7a8d014ba082b6, type: 2}
+  - {fileID: 11400000, guid: 3580d4ff64432c0448ade4e6f0a5481e, type: 2}
+  - {fileID: 11400000, guid: a46c893e876d88249983ec5d2e17221a, type: 2}
+  - {fileID: 11400000, guid: 10523671699c6954286b230ee596e61d, type: 2}
+  <Multiplier>k__BackingField: 3

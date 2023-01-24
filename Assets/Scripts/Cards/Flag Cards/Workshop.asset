@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e84e8b726936c41b3a6c60be7178d5, type: 3}
+  m_Name: Workshop
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 3436144375801848052, guid: bbaf0e5cc277afb46b8c6df2ba9ff565, type: 3}
+  type: 2
+  era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
+  cardImage: {fileID: 0}
+  id: 12
+  subtitle: 'One Industry Flag '
+  quote: 'We make the stuff you forgot to bring along. '
+  flagRequirements: []
+  assimilationValue:
+  - {fileID: 11400000, guid: 2c0af2ba0b79d054194e5b10054e7560, type: 2}
+  resourceRequirements:
+  - {fileID: 11400000, guid: 35f22be1ff34a8e469b15a052483096e, type: 2}
+  cardResources: []
+  flags:
+  - {fileID: 11400000, guid: 3a75d453553a4ef40ab7220c5d5f9aba, type: 2}

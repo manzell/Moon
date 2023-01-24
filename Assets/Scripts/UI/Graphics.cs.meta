@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 9661be6e0e6a14b44bb00625cfa34bb9
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - expeditionCardPrefab: {instanceID: 0}
+  - baseCardPrefab: {instanceID: 0}
+  - resourceCardPrefab: {instanceID: 0}
+  - flagCardPrefab: {instanceID: 0}
+  - actionCardPrefab: {instanceID: 0}
+  - victoryCardPrefab: {instanceID: 0}
+  - occupiedRoverIcon: {instanceID: 0}
+  - emptyRoverIcon: {fileID: 21300000, guid: a503d97cf86fc2142b0b129c81ce4347, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
