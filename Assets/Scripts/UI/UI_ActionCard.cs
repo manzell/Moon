@@ -17,7 +17,7 @@ namespace moon
             if (Time.time - lastClick < 0.25f && Time.time > lastClick) // Arbitrary Double-click time width;
             {
                 lastClick = Time.time + 2f; // Arbitrary Double-click lock out 
-                FindObjectOfType<Game>().UseCardAction_ServerRpc(Game.Player.NetworkObjectId, Card.GetHashCode()); 
+                FindObjectOfType<Game>().UseCardAction_ServerRpc(Game.Player.OwnerClientId, Card.ID); 
             }
             else
                 lastClick = Time.time;

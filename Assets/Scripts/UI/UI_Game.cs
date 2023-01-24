@@ -25,6 +25,7 @@ namespace moon
             this.player = player;
             Player.AddCardToTableauEvent += AddCardToTableau;
             player.AddCardToHandEvent += OnGainCard;
+            player.RemoveCardFromHandEvent += OnLoseCard; 
 
             foreach (Transform t in productionCards)
                 Destroy(t.gameObject);
@@ -57,23 +58,27 @@ namespace moon
             ui.Setup(card); 
         }
 
+        public void OnLoseCard(Card card)
+        {
+            Destroy(GetComponentsInChildren<UI_Card>().Where(ui => card == (Card)ui.Card).FirstOrDefault()?.gameObject); 
+        }
+
         public void AddCardToTableau(Player player, PlayCard card)
         {
             if(player.IsOwner)
             {
                 if (card is ResourceCard productionCard)
-                    Instantiate(card.Prefab, productionCards);
+                    Instantiate(card.Prefab, productionCards).Setup(card);
                 else if (card is FlagCard flagCard)
-                    Instantiate(card.Prefab, flagCards);
+                    Instantiate(card.Prefab, flagCards).Setup(card);
                 else if (card is ActionCard actionCard)
-                    Instantiate(card.Prefab, actionCards);
+                    Instantiate(card.Prefab, actionCards).Setup(card);
                 else if (card is VictoryCard victoryCard)
-                    Instantiate(card.Prefab, victoryCards);
+                    Instantiate(card.Prefab, victoryCards).Setup(card);
             }
             else
             {
-                UI_ConstructedCard construct = Instantiate(constructedPrefab, opponentCards);
-                construct.Setup(card); 
+                Instantiate(constructedPrefab, opponentCards).Setup(card); 
             }
         }
 

@@ -19,12 +19,15 @@ namespace moon
 
         public void Execute()
         {
-            Debug.Log($"Trying {this}");
-
             if (Can())
+            {
                 Do();
+                Game.CurrentTurn.Actions.Add(this); 
+            }
             else
-                Debug.Log($"Cannot Do {this}"); 
+            {
+                Debug.Log($"Cannot Do {this}");
+            }
         }
 
         public void Force() => Do(); 
@@ -36,16 +39,26 @@ namespace moon
     public class PlayCardAction : TurnAction
     {
         protected PlayCard card;
-        public PlayCardAction(Player player, PlayCard card) : base(player) => this.card = card; 
+        public PlayCardAction(Player player, PlayCard card) : base(player) => this.card = card;
 
-        public override bool Can() => player.CanAfford(card.ResourceRequirements, card.FlagRequirements) &&
-            !Game.CurrentTurn.Actions.OfType<PlayCardAction>().Any(); 
+        public override bool Can()
+        {
+            bool canAfford = player.CanAfford(card.ResourceRequirements, card.FlagRequirements); 
+            bool preexistingActions = Game.CurrentTurn.Actions.OfType<PlayCardAction>().Any();
+
+            Debug.Log($"{canAfford} && {!preexistingActions}"); 
+            return canAfford && !preexistingActions; 
+        }
 
         protected override void Do()
         {
+            Debug.Log($"Building {card.name} in {player.name}'s Tableau");
             player.RemoveResources(card.ResourceRequirements);
-            player.RemoveCardFromHand(card);
-            player.AddCardToTableau(card); 
+            player.RemoveCardsFromHand(new List<Card>() { card });
+            player.AddCardToTableau(card);
+
+            if (card is ResourceCard resourceCard)
+                player.AddResources(resourceCard.productionAction.Value(player)); 
         }
     }
 
@@ -56,8 +69,9 @@ namespace moon
         public override bool Can() => !Game.CurrentTurn.Actions.OfType<PlayCardAction>().Any();
         protected override void Do()
         {
-            player.RemoveCardFromHand(card);
-            player.AddResources(card.AssimilationValue); 
+            Debug.Log($"Assimilating {card.name} for {string.Join(" +", card.AssimilationValue)}");
+            player.AddResources(card.AssimilationValue);
+            player.RemoveCardsFromHand(new List<Card>() { card });
         }
     }
 

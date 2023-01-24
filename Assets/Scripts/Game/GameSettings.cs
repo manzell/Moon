@@ -8,6 +8,7 @@ namespace moon
     [CreateAssetMenu]
     public class GameSettings : SerializedScriptableObject
     {
-        [field: SerializeField] public Queue<Era> Eras; 
+        [field: SerializeField] public Queue<Era> Eras;
+        [field: SerializeField] public List<Resource> StartingResources; 
     }
 }

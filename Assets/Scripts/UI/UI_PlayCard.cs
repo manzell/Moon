@@ -82,16 +82,13 @@ namespace moon
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            if (Game.CurrentTurn.Player.IsOwner)
-            {
-                if(transform.parent == previousParent.parent)
-                    transform.SetParent(previousParent, false); 
+            Debug.Log("UI_PlayCard.OnEndDrag() - This is moving the card back into our hand area");
+            eventData.selectedObject.transform.SetParent(previousParent); 
 
-                GetComponent<CanvasGroup>().alpha = 1f;
-                GetComponent<CanvasGroup>().blocksRaycasts = true;
+            GetComponent<CanvasGroup>().alpha = 1f;
+            GetComponent<CanvasGroup>().blocksRaycasts = true;
 
-                FindObjectsOfType<UI_CardPlayArea>().ForEach(cpa => cpa.GetComponentsInChildren<Graphic>().ForEach(graphic => graphic.raycastTarget = false));
-            }
+            FindObjectsOfType<UI_CardPlayArea>().ForEach(cpa => cpa.GetComponentsInChildren<Graphic>().ForEach(graphic => graphic.raycastTarget = false));
         }
     }
 }

@@ -11,16 +11,16 @@ namespace moon
         public static System.Action<Turn> StartTurnEvent, EndTurnEvent;
 
         public Player Player { get; private set; }
-        public List<TurnAction> Actions { get; private set; }
+        public List<TurnAction> Actions { get; private set; } = new(); 
 
         public bool CanEndTurn => Actions.OfType<PlayCardAction>().Count() > 0; 
         public Turn(Player player) => Player = player;
 
         public void StartTurn()
         {
-            Debug.Log($"Starting Turn [{Player.name}]");
+            Debug.Log($"Starting {Player.name} turn");
             Game.CurrentTurn = this;
-            //StartTurnEvent?.Invoke(this);
+            StartTurnEvent?.Invoke(this);
         }
 
         public void NextTurn(Turn previousTurn)
@@ -41,7 +41,7 @@ namespace moon
 
         public void EndTurn()
         {
-            //EndTurnEvent?.Invoke(this);
+            EndTurnEvent?.Invoke(this);
             NextTurn(this);
         }
     }

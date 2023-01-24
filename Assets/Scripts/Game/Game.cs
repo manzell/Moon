@@ -12,6 +12,7 @@ namespace moon
         public static System.Action StartGameEvent, EndGameEvent;
         public static System.Action<ReputationCard> ClaimReputationCardEvent, AddReputationCardToGameEvent; 
 
+        public static GameSettings GameSettings => FindObjectOfType<Game>().gameSettings;
         [SerializeField] GameSettings gameSettings;
 
         public static Graphics Graphics; 
@@ -27,7 +28,7 @@ namespace moon
         public static List<Player> Players = new();
 
         public static Queue<Era> Eras { get; private set; } // Player never needs to know. 
-        public static List<Card> Cards { get; private set; } = new(); // This is a handy dandy reference. Should be a ClientRPC
+        public static HashSet<Card> Cards { get; private set; } = new(); // This is a handy dandy reference. Should be a ClientRPC
         public static Stack<PlayCard> Deck { get; private set; } = new(); // Player should not be able to access Deck. 
         public static List<ReputationCard> ReputationCards { get; private set; } = new(); // The player needs to know what rep cards are available. 
         public static List<PlayCard> Discards { get; private set; } = new(); // Player should not be able to access Discards. 
@@ -43,12 +44,9 @@ namespace moon
             Graphics = graphics;
             Flags = flags;
             Resources = resources;
-
-            Eras = new(gameSettings.Eras);
-            Cards.AddRange(Eras.SelectMany(era => era.Deck));
         }
 
-        public void AddPlayer(Player player)
+        public static void AddPlayer(Player player)
         {
             if (Players.Count < 5)
             {
@@ -66,6 +64,9 @@ namespace moon
 
         public static void StartGame()
         {
+            Eras = new(GameSettings.Eras);
+            Cards.AddRange(Eras.SelectMany(era => era.Deck));
+
             if (Players.Count > 0 && Players.Count < 6)
             {
                 Debug.Log($"Starting {Eras.Count}-Era Game for {Players.Count} players");
@@ -77,10 +78,12 @@ namespace moon
             {
                 Debug.LogWarning("Must have between 2 and 5 players connected");
             }
+        }
 
-            NetworkManager manager = FindObjectOfType<NetworkManager>(); 
-
-
+        public static void EndTurn()
+        {
+            if (CurrentTurn.CanEndTurn)
+                CurrentTurn.EndTurn();
         }
 
         public static void EndGame()
@@ -103,8 +106,8 @@ namespace moon
         [ServerRpc]
         public void BuildStructure_ServerRpc(ulong playerID, int cardID)
         {
-            Player player = Players.FirstOrDefault(player => playerID == player.NetworkObjectId);
-            PlayCard card = player.Hand.OfType<PlayCard>().FirstOrDefault(card => card.GetHashCode() == cardID);
+            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
+            PlayCard card = player.Hand.OfType<PlayCard>().FirstOrDefault(card => card.ID == cardID);
 
             new PlayCardAction(player, card).Execute();
         }
@@ -112,16 +115,15 @@ namespace moon
         [ServerRpc]
         public void Assimilate_ServerRpc(ulong playerID, int cardID)
         {
-            Player player = Players.FirstOrDefault(player => playerID == player.NetworkObjectId);
+            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
             PlayCard card = player.Hand.OfType<PlayCard>().FirstOrDefault(card => card.ID == cardID);
-
             new AssimilateAction(player, card).Execute();
         }
 
         [ServerRpc]
         public void Expedition_ServerRpc(ulong playerID, int cardID)
         {
-            Player player = Players.FirstOrDefault(player => playerID == player.NetworkObjectId);
+            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
             ExpeditionCard card = player.Hand.OfType<ExpeditionCard>().FirstOrDefault(card => card.ID == cardID);
 
             new ExpeditionAction(card, player).Execute(); 
@@ -130,7 +132,7 @@ namespace moon
         [ServerRpc]
         public void DeployRover_ServerRpc(ulong playerID, int destinationcardID)
         {
-            Player player = Players.FirstOrDefault(player => playerID == player.NetworkObjectId);
+            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
             IConstructionCard card = player.Hand.OfType<IConstructionCard>().FirstOrDefault(card => card.ID == destinationcardID);
 
             new RoverAction(player, card).Execute();
@@ -139,7 +141,7 @@ namespace moon
         [ServerRpc]
         public void UseCardAction_ServerRpc(ulong playerID, int cardID)
         {
-            Player player = Players.FirstOrDefault(player => playerID == player.NetworkObjectId);
+            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
             ActionCard card = player.Hand.OfType<ActionCard>().FirstOrDefault(card => card.ID == cardID);
 
             new FlipCardAction(card, player).Execute();
@@ -148,7 +150,7 @@ namespace moon
         [ServerRpc]
         public void ClaimReputation_ServerRpc(ulong playerID, int cardID)
         {
-            Player player = Players.FirstOrDefault(player => playerID == player.NetworkObjectId);
+            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
             ReputationCard card = player.Hand.OfType<ReputationCard>().FirstOrDefault(card => card.ID == cardID);
 
             new ClaimReputationAction(card, player).Execute();  

@@ -40,18 +40,18 @@ namespace moon
 
         public void PassCards()
         {
-            List<Card> firstPlayerCards = Game.Players.First().Hand;
-
-            for (int i = 0; i < Game.Players.Count - 1; i++)
+            if(Game.Players.Count > 1)
             {
-                Card card = Game.Players[i + 1].Hand.First();
+                List<Card> firstPlayerCards = new(Game.Players[0].Hand);
 
-                Game.Players[i + 1].RemoveCardFromHand(card);
-                Game.Players[i].AddCardToHand(card);
+                for (int i = 0; i < Game.Players.Count - 1; i++)
+                {
+                    Game.Players[i].RemoveCardsFromHand(Game.Players[i].Hand);
+                    Game.Players[i].AddCardsToHand(Game.Players[i + 1].Hand);
+                }
+
+                Game.Players.Last().AddCardsToHand(firstPlayerCards);
             }
-
-            foreach (Card card in firstPlayerCards)
-                Game.Players.Last().AddCardToHand(card);
         }
 
         public void ShiftTurnOrder()

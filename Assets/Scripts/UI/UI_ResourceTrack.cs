@@ -21,11 +21,11 @@ namespace moon
 
             game = FindObjectOfType<Game>();
 
-            player.AddResourceEvent += UpdateCount;
-            player.LoseResourceEvent += UpdateCount;
+            player.AddResourcesEvent += UpdateCount;
+            player.LoseResourcesEvent += UpdateCount;
 
             Style();
-            UpdateCount(resource); 
+            UpdateCount(player.Resources); 
         }
 
         void Style()
@@ -34,10 +34,10 @@ namespace moon
             resourceIcon.sprite = resource.Icon;
         }
 
-        void UpdateCount(Resource r)
+        void UpdateCount(IEnumerable<Resource> resources)
         {
-            if (r == resource)
-                resourceCount.text = player.Resources.Count(resource => resource == r).ToString(); 
+            if (resources.Any(resource => resource == this.resource)) 
+                resourceCount.text = player.Resources.Count(resource => resource == this.resource).ToString(); 
         }
     }
 }

@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Unity.Netcode;
+using Mono.Cecil;
+using Sirenix.Utilities;
 
 namespace moon
 {
     public class Player : NetworkBehaviour
     {
-        public static Player GetById(ulong playerID) => Game.Players.FirstOrDefault(player => player.NetworkObjectId == playerID);
+        public static Player GetById(ulong playerID) => Game.Players.FirstOrDefault(player => player.OwnerClientId == playerID);
 
-        public System.Action<Resource> AddResourceEvent, LoseResourceEvent;
+        public System.Action<IEnumerable<Resource>> AddResourcesEvent, LoseResourcesEvent;
         public static System.Action<Player, PlayCard> AddCardToTableauEvent, RemoveCardFromTableauEvent;
         public System.Action<Card> AddCardToHandEvent, RemoveCardFromHandEvent;
         public System.Action<ReputationCard> ClaimReputationCardEvent;
         public System.Action<IConstructionCard> DeployRoverEvent, RecallRoverEvent;
-
         public System.Action<ResourceCard> ProduceEvent; 
 
-        Game game;
         public ClientRpcParams rpcParams { get; private set; }
         
         public List<Resource> Resources { get; private set; } = new();
@@ -35,35 +35,44 @@ namespace moon
 
         public override void OnNetworkSpawn()
         {
-            base.OnNetworkSpawn();
+            rpcParams = new()  { Send = new() { TargetClientIds = new List<ulong>() { OwnerClientId } } };
 
-            rpcParams = new()  { Send = new() { TargetClientIds = new List<ulong>() { OwnerClientId } } }; 
-            game = FindObjectOfType<Game>();
-                
-            game.AddPlayer(this);
+            Game.AddPlayer(this);
+            Game.StartGameEvent += OnGameStart;
 
             if (IsOwner)
                 FindObjectOfType<UI_Game>().SetPlayer(this);
         }
 
-        public void AddResources(List<Resource> resources) => ModifyResource_ClientRpc(resources.Select(resource => resource.ID).ToArray(), true, rpcParams);
-        public void RemoveResources(List<Resource> resources) => ModifyResource_ClientRpc(resources.Select(resource => resource.ID).ToArray(), false, rpcParams);
+        public void OnGameStart()
+        {
+            AddResources(Game.GameSettings.StartingResources); 
+        }
+
+        public void AddResources(IEnumerable<Resource> resources) => ModifyResource_ClientRpc(resources.Select(resource => resource.ID).ToArray(), true, rpcParams);
+        public void RemoveResources(IEnumerable<Resource> resources) => ModifyResource_ClientRpc(resources.Select(resource => resource.ID).ToArray(), false, rpcParams);
         [ClientRpc] void ModifyResource_ClientRpc(int[] ResourceIDs, bool add, ClientRpcParams args)
         {
-            foreach (int id in ResourceIDs)
+            foreach (int id in ResourceIDs.Distinct())
             {
-                Resource resource = Game.Resources.all.FirstOrDefault(resource => resource.ID == id);
+                IEnumerable<Resource> resources = ResourceIDs.Where(rid => rid == id).Select(rid => Game.Resources.all.FirstOrDefault(resource => resource.ID == rid));
 
                 if(add)
                 {
-                    Resources.Add(resource);
-                    AddResourceEvent?.Invoke(resource);
+                    Resources.AddRange(resources);
+                    AddResourcesEvent?.Invoke(resources);
                 }
                 else
                 {
-                    Resources.Remove(resource);
-                    LoseResourceEvent?.Invoke(resource);
+                    IEnumerable<Resource> resourcesToRemove = Resources.Where(resource => resource == Game.Resources.wildcard || resource.ID == id)
+                        .OrderByDescending(resource => resource != Game.Resources.wildcard).Take(resources.Count());
+
+                    resourcesToRemove.ForEach(resource => Resources.Remove(resource)); 
+
+                    LoseResourcesEvent?.Invoke(resourcesToRemove);
                 }
+
+                Debug.Log($"{name} {(resources.Count() > 0 ? "+" : "-")}{resources.Count()} {resources.First().name}");
             }
         }
 
@@ -85,20 +94,23 @@ namespace moon
             }
         }
        
-        public void AddCardToHand(Card card) => ModifyCardsInHand_ClientRpc(card.ID, true, rpcParams);
-        public void RemoveCardFromHand(Card card) => ModifyCardsInHand_ClientRpc(card.ID, false, rpcParams);
-        [ClientRpc] void ModifyCardsInHand_ClientRpc(int cardID, bool add, ClientRpcParams args)
+        public void AddCardsToHand(IEnumerable<Card> cards) => ModifyCardsInHand_ClientRpc(cards.Select(card => card.ID).ToArray(), true, rpcParams);
+        public void RemoveCardsFromHand(IEnumerable<Card> cards) => ModifyCardsInHand_ClientRpc(cards.Select(card => card.ID).ToArray(), false, rpcParams);
+        [ClientRpc] void ModifyCardsInHand_ClientRpc(int[] cardIDs, bool add, ClientRpcParams args)
         {
-            Card card = Game.Cards.FirstOrDefault(card => card.ID == cardID);
-            if(add)
+            foreach(int id in cardIDs)
             {
-                Hand.Add(card);
-                AddCardToHandEvent?.Invoke(card);
-            }
-            else
-            {
-                Hand.Remove(card);
-                RemoveCardFromHandEvent?.Invoke(card);
+                Card card = Game.Cards.FirstOrDefault(card => card.ID == id);
+                if (add)
+                {
+                    Hand.Add(card);
+                    AddCardToHandEvent?.Invoke(card);
+                }
+                else
+                {
+                    Hand.Remove(card);
+                    RemoveCardFromHandEvent?.Invoke(card);
+                }
             }
         }
 
@@ -127,20 +139,24 @@ namespace moon
             }
         }
 
-
-        public bool CanAfford(List<Resource> resourceCost, List<Flag> flagCost)
+        public bool CanAfford(IEnumerable<Resource> resourceCost, IEnumerable<Flag> flagCost)
         {
-            List<Resource> playerResources = new(Resources);
-            List<Flag> playerFlags = new(Flags);
+            List<Resource> rcost = new(resourceCost);
+            List<Flag> fcost = new(flagCost);
 
-            foreach (Resource resource in playerResources)
-                resourceCost.Remove(resource);
-            foreach (Flag flag in playerFlags)
-                flagCost.Remove(flag);
+            foreach (Resource resource in Resources)
+            {
+                if (rcost.Remove(resource))
+                    Debug.Log($"Paid down 1 {resource.name}"); 
+            }
 
-            return flagCost.Count == 0 && resourceCost.Count <= Resources.Count(resource => resource == Game.Resources.wildcard);
+            foreach (Flag flag in Flags)
+                fcost.Remove(flag);
+
+            Debug.Log($"Player owes {rcost.Count} Resources (has {Resources.Count(resource => resource == Game.Resources.wildcard)} Wildcards) and {fcost.Count} Flags"); 
+
+            return fcost.Count() == 0 && rcost.Count() <= Resources.Count(resource => resource == Game.Resources.wildcard);
         }
-
-        public void Discard(Card card) => RemoveCardFromHand(card); 
+        public void Discard(Card card) => RemoveCardsFromHand(new List<Card>() { card }); 
     }
 }

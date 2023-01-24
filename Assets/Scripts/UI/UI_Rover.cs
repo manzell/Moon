@@ -18,24 +18,20 @@ namespace moon
         public Player player {  get; private set; }
         RectTransform rect;
         GameObject rover;
-        int rovers; 
 
         public void SetPlayer(Player player)
         {
             this.player = player; 
-            player.AddResourceEvent += r => { if (r == Game.Resources.rover) Style(); };
-            player.LoseResourceEvent += r => { if (r == Game.Resources.rover) Style(); };
+            player.AddResourcesEvent += r => { if (r.Any(resource => resource == Game.Resources.rover)) Style(); };
+            player.LoseResourcesEvent += r => { if (r.Any(resource => resource == Game.Resources.rover)) Style(); };
             Game.StartGameEvent += Style;
         }
 
-        void Style()
-        {
-            count.text = rovers.ToString();
-        }
+        void Style() => count.text = player.Resources.Count(resource => resource == Game.Resources.rover).ToString(); 
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (rovers >= 1)
+            if (player.Resources.Count(resource => resource == Game.Resources.rover) >= 1)
             {
                 rover = Instantiate(roverImage.gameObject, transform);
                 rect = rover.GetComponent<RectTransform>();

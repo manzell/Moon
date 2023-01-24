@@ -15,7 +15,7 @@ namespace moon
 
         public void StartPhase()
         {
-            Debug.Log($"Starting Phase {this}"); 
+            Debug.Log($"Starting {this}"); 
             PhaseStartEvent?.Invoke(this);
             OnPhase();
         }
@@ -87,7 +87,7 @@ namespace moon
                         Card card = Game.Deck.Pop();
                         Debug.Log($"Dealing {card.name} to {player.name}");
                         
-                        player.AddCardToHand(card);
+                        player.AddCardsToHand(new List<Card>() { card });
                     }
                 }
             }

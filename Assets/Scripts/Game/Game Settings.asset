@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Game Settings
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 0
-    SerializedBytes: 01010400000045007200610073002f000000000149000000530079007300740065006d002e0043006f006c006c0065006300740069006f006e0073002e00470065006e0065007200690063002e0051007500650075006500600031005b005b006d006f006f006e002e004500720061002c00200041007300730065006d0062006c0079002d004300530068006100720070005d005d002c0020006d00730063006f0072006c0069006200000000000603000000000000000c000000000c010000000c020000000705
+    SerializedFormat: 2
+    SerializedBytes: 
     ReferencedUnityObjects:
     - {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
     - {fileID: 11400000, guid: e91a45711c7ce6c46b3046a9a886804c, type: 2}
@@ -23,4 +23,28 @@ MonoBehaviour:
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
-    SerializationNodes: []
+    SerializationNodes:
+    - Name: Eras
+      Entry: 7
+      Data: 0|System.Collections.Generic.Queue`1[[moon.Era, Assembly-CSharp]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 10
+      Data: 2
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  StartingResources:
+  - {fileID: 11400000, guid: 0afad15af1c3a5f49828a19b53318254, type: 2}
+  - {fileID: 11400000, guid: 0afad15af1c3a5f49828a19b53318254, type: 2}

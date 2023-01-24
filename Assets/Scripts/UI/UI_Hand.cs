@@ -13,7 +13,7 @@ namespace moon
             char[] nombre = new char[4]; 
 
             if (eventData.selectedObject.TryGetComponent(out UI_ReputationCard UI))
-                FindObjectOfType<Game>().ClaimReputation_ServerRpc(Game.Player.NetworkObjectId, UI.Card.GetHashCode()); 
+                FindObjectOfType<Game>().ClaimReputation_ServerRpc(Game.Player.OwnerClientId, UI.Card.ID); 
         }
     }
 }

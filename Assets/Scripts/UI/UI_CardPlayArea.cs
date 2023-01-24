@@ -11,7 +11,7 @@ namespace moon
         public void OnDrop(PointerEventData eventData)
         {
             if (eventData.selectedObject.TryGetComponent(out UI_PlayCard UI))
-                FindObjectOfType<Game>().BuildStructure_ServerRpc(Game.Player.NetworkObjectId, UI.Card.ID); 
+                FindObjectOfType<Game>().BuildStructure_ServerRpc(Game.Player.OwnerClientId, UI.Card.ID);
         }
     }
 }

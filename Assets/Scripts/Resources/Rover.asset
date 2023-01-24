@@ -15,3 +15,4 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: a82e6c77b28bbe94a88b640ec2df2912, type: 3}
   color: {r: 0.92300004, g: 0.92300004, b: 0.92300004, a: 1}
   prefab: {fileID: 6940734480744655100, guid: c2218e9b66d19aa4787e503b76f20bad, type: 3}
+  id: 204

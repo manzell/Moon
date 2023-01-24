@@ -32,7 +32,7 @@ namespace moon
         public void OnDrop(PointerEventData eventData)
         {
             if (eventData.selectedObject.TryGetComponent(out UI_Rover UI))
-                FindObjectOfType<Game>().DeployRover_ServerRpc(Game.Player.NetworkObjectId, card.ID); 
+                FindObjectOfType<Game>().DeployRover_ServerRpc(Game.Player.OwnerClientId, card.ID); 
         }
     }
 }

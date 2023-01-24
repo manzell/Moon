@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,8 +6,8 @@ namespace moon
 {
     public class ResourceCard : PlayCard, IConstructionCard
     {
-        public Action<Player> AddRoverEvent { get; set; }
-        public Action RemoveRoverEvent { get; set; }
+        public System.Action<Player> AddRoverEvent { get; set; }
+        public System.Action RemoveRoverEvent { get; set; }
 
         public Player Rover { get; private set; }
         [field: SerializeReference] public ProductionAction productionAction { get; private set; }
