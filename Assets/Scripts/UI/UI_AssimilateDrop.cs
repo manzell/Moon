@@ -10,7 +10,10 @@ namespace moon
         public void OnDrop(PointerEventData eventData)
         {
             if (eventData.selectedObject.TryGetComponent(out UI_PlayCard UI))
-                FindObjectOfType<Game>().Assimilate_ServerRpc(Game.Player.OwnerClientId, UI.Card.ID);
+            {
+                Game game = FindObjectOfType<Game>();
+                game.Assimilate_ServerRpc(Game.Player.OwnerClientId, UI.Card.ID);
+            }
         }
     }
 }

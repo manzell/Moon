@@ -11,12 +11,13 @@ namespace moon
     public class UI_Game : MonoBehaviour
     {
         [SerializeField] Player player;
-        [SerializeField] Transform productionCards, flagCards, actionCards, victoryCards, opponentCards, hand; 
+        [SerializeField] Transform productionCards, flagCards, actionCards, victoryCards, opponentCards, hand, reputationCards; 
         [SerializeField] UI_ConstructedCard constructedPrefab;
         [SerializeField] TextMeshProUGUI messageBox;
 
         private void Start()
         {
+            Game.AddReputationCardToGameEvent += OnAddRepCard;
             Turn.StartTurnEvent += OnTurnStart; 
         }
 
@@ -46,10 +47,12 @@ namespace moon
 
         void OnTurnStart(Turn turn)
         {
-            if (turn.Player.IsOwner)
-                SetMessage("It's your turn!"); 
+            SetMessage($"Turn Start Event - {turn.Player.name}");
+
+            if (turn.Player == player)
+                SetMessage($"Your Turn [#{Game.CurrentRound.Turns.Count}]"); 
             else
-                SetMessage($"It's {turn.Player.name}'s Turn!");
+                SetMessage($"{turn.Player.name}'s Turn [#{Game.CurrentRound.Turns.Count}]");
         }
 
         public void OnGainCard(Card card)
@@ -85,6 +88,13 @@ namespace moon
         public void SetMessage(string message)
         {
             messageBox.text = message; 
+        }
+
+        void OnAddRepCard(ReputationCard card)
+        {
+            UI_Card ui = Instantiate(card.Prefab, reputationCards);
+            ui.gameObject.name = card.name; 
+            ui.Setup(card); 
         }
     }
 }

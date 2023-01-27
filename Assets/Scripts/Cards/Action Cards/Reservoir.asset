@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6008abadb40c62047923c5dd82fdb725, type: 3}
   m_Name: Reservoir
   m_EditorClassIdentifier: 
-  prefab: {fileID: 579568164909811958, guid: fe6cf556eb90e494585a9808ecdc0133, type: 3}
+  prefab: {fileID: 2327270892740485389, guid: fe6cf556eb90e494585a9808ecdc0133, type: 3}
   type: 3
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}
-  id: 18
+  id: 103
   subtitle: 'Flip: Score one VP per Water. '
   quote: 'When it''s full, everyone get''s to take a shower! '
   flagRequirements: []
-  assimilationValue: []
-  resourceRequirements: []
+  assimilationValue:
+  - {fileID: 11400000, guid: 2c0af2ba0b79d054194e5b10054e7560, type: 2}
+  resourceRequirements:
+  - {fileID: 11400000, guid: 2c0af2ba0b79d054194e5b10054e7560, type: 2}
   cardResources: []

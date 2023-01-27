@@ -34,10 +34,6 @@ namespace moon
             resourceIcon.sprite = resource.Icon;
         }
 
-        void UpdateCount(IEnumerable<Resource> resources)
-        {
-            if (resources.Any(resource => resource == this.resource)) 
-                resourceCount.text = player.Resources.Count(resource => resource == this.resource).ToString(); 
-        }
+        void UpdateCount(IEnumerable<Resource> resources) => resourceCount.text = player.Resources.Count(resource => resource == this.resource).ToString();
     }
 }

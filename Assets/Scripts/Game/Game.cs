@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Unity.Netcode;
-using Unity.VisualScripting;
 
 namespace moon
 {
     public class Game : NetworkBehaviour
     {
         public static System.Action StartGameEvent, EndGameEvent;
-        public static System.Action<ReputationCard> ClaimReputationCardEvent, AddReputationCardToGameEvent; 
+        public static System.Action<ReputationCard> ClaimReputationCardEvent, AddReputationCardToGameEvent;
+
+        public static Transform StartServerButton => FindObjectOfType<Game>().startServerButton;
+        public static Transform StartHostButton => FindObjectOfType<Game>().startHostButton;
+        public static Transform StartClientButton => FindObjectOfType<Game>().startClientButton;
+        public static Transform StartGameButton => FindObjectOfType<Game>().startGameButton;
+        [SerializeField] Transform startServerButton, startHostButton, startClientButton, startGameButton;
 
         public static GameSettings GameSettings => FindObjectOfType<Game>().gameSettings;
         [SerializeField] GameSettings gameSettings;
@@ -62,10 +67,10 @@ namespace moon
 
         #region Game-Turn-Order-Management
 
-        public static void StartGame()
+        [ClientRpc] public void StartGame_ClientRpc()
         {
             Eras = new(GameSettings.Eras);
-            Cards.AddRange(Eras.SelectMany(era => era.Deck));
+            Cards.UnionWith(Eras.SelectMany(era => era.Deck));
 
             if (Players.Count > 0 && Players.Count < 6)
             {
@@ -76,14 +81,18 @@ namespace moon
             }
             else
             {
-                Debug.LogWarning("Must have between 2 and 5 players connected");
+                Debug.LogWarning("Must have between 1 and 5 players connected");
             }
         }
 
-        public static void EndTurn()
+        [ServerRpc(RequireOwnership = false)] public void EndTurn_ServerRpc()
         {
             if (CurrentTurn.CanEndTurn)
-                CurrentTurn.EndTurn();
+                EndTurn_ClientRpc(); 
+        }
+        [ClientRpc] void EndTurn_ClientRpc()
+        {
+            CurrentTurn.EndTurn();
         }
 
         public static void EndGame()
@@ -103,89 +112,125 @@ namespace moon
 
         #region Basic Player Actions
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         public void BuildStructure_ServerRpc(ulong playerID, int cardID)
         {
             Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
             PlayCard card = player.Hand.OfType<PlayCard>().FirstOrDefault(card => card.ID == cardID);
-
-            new PlayCardAction(player, card).Execute();
+            
+            TurnAction action = new PlayCardAction();
+            action.SetCard(card);
+            action.Execute(player);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         public void Assimilate_ServerRpc(ulong playerID, int cardID)
         {
             Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
-            PlayCard card = player.Hand.OfType<PlayCard>().FirstOrDefault(card => card.ID == cardID);
-            new AssimilateAction(player, card).Execute();
+            PlayCard card = Card.GetById<PlayCard>(cardID); 
+            
+            TurnAction action = new AssimilateAction();
+            action.SetCard(card);
+            action.Execute(player);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         public void Expedition_ServerRpc(ulong playerID, int cardID)
         {
             Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
-            ExpeditionCard card = player.Hand.OfType<ExpeditionCard>().FirstOrDefault(card => card.ID == cardID);
-
-            new ExpeditionAction(card, player).Execute(); 
+            ExpeditionCard card = Card.GetById<ExpeditionCard>(cardID); 
+           
+            TurnAction action = new ExpeditionAction();
+            action.SetCard(card);
+            action.Execute(player);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         public void DeployRover_ServerRpc(ulong playerID, int destinationcardID)
         {
             Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
-            IConstructionCard card = player.Hand.OfType<IConstructionCard>().FirstOrDefault(card => card.ID == destinationcardID);
+            IConstructionCard card = Card.GetById(destinationcardID) as IConstructionCard; 
+            //IConstructionCard card = player.Hand.OfType<IConstructionCard>().FirstOrDefault(card => card.ID == destinationcardID);
 
-            new RoverAction(player, card).Execute();
+            TurnAction action = new RoverAction();
+            action.SetCard(card);
+            action.Execute(player);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         public void UseCardAction_ServerRpc(ulong playerID, int cardID)
         {
-            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
-            ActionCard card = player.Hand.OfType<ActionCard>().FirstOrDefault(card => card.ID == cardID);
-
-            new FlipCardAction(card, player).Execute();
+            Player player = Player.GetById(playerID); 
+                //.FirstOrDefault(player => playerID == player.OwnerClientId);
+            ActionCard card = Card.GetById<ActionCard>(cardID);
+            
+            TurnAction action = new FlipCardAction();
+            action.SetCard(card);
+            action.Execute(player);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         public void ClaimReputation_ServerRpc(ulong playerID, int cardID)
         {
             Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
-            ReputationCard card = player.Hand.OfType<ReputationCard>().FirstOrDefault(card => card.ID == cardID);
+            ReputationCard card = Card.GetById<ReputationCard>(cardID);
 
-            new ClaimReputationAction(card, player).Execute();  
+            TurnAction action = new ClaimReputationAction();
+            action.SetCard(card);
+            action.Execute(player);
         }
         #endregion
 
-        public void AddReputationCards(IEnumerable<ReputationCard> cards)
-        {
-            foreach (ReputationCard card in cards)
-                ModifyReputationCard_ClientRpc(card.ID, true); 
-        }
-
         [ClientRpc] public void AddCardToDeck_ClientRpc(int cardID)
         {
-            Card card = Cards.FirstOrDefault(card => card.ID == cardID);
+            Card card = Card.GetById(cardID);
 
-            if(card != null)
+            if (card != null)
                 if (card is PlayCard playCard)
                     Deck.Push(playCard);
         }
 
-        [ClientRpc] public void ModifyReputationCard_ClientRpc(int cardID, bool add)
+        public void AddReputationCards(IEnumerable<ReputationCard> cards)
         {
-            ReputationCard card = Cards.OfType<ReputationCard>().FirstOrDefault(card => card.ID == cardID);
+            ModifyReputationCard_ClientRpc(cards.Select(card => card.ID).ToArray(), true); 
+        }
 
-            if (add)
+        [ClientRpc] public void ModifyReputationCard_ClientRpc(int[] cardIDs, bool add)
+        {
+            foreach(int cardID in cardIDs)
             {
-                ReputationCards.Add(card);
-                AddReputationCardToGameEvent?.Invoke(card); 
+                ReputationCard card = Card.GetById<ReputationCard>(cardID); 
+                    //Cards.OfType<ReputationCard>().FirstOrDefault(card => card.ID == cardID);
+
+                if (add)
+                {
+                    ReputationCards.Add(card);
+                    AddReputationCardToGameEvent?.Invoke(card);
+                }
+                else
+                {
+                    ReputationCards.Remove(card);
+                    ClaimReputationCardEvent?.Invoke(card);
+                }
             }
-            else
-            {
-                ReputationCards.Remove(card);
-                ClaimReputationCardEvent?.Invoke(card); 
-            }
+        }
+
+        public void LogServer(string message)
+        {
+            FindObjectOfType<UI_Game>().SetMessage($"LogServer({message}) IsHost: {IsHost} IsServer: {IsServer} IsClient: {IsClient} IsOwner: {IsOwner} IsOwnedByServer: {IsOwnedByServer}");
+            Log_ServerRpc(message);
+        }
+
+        [ServerRpc(RequireOwnership = false)] void Log_ServerRpc(string message)
+        {
+            FindObjectOfType<UI_Game>().SetMessage($"LogServerRpc({message})");
+            Log_ClientRpc(message);
+        }
+
+        [ClientRpc] void Log_ClientRpc(string message)
+        {
+            FindObjectOfType<UI_Game>().SetMessage($"LogClientRpc({message})");
+            Debug.Log("##LOG## |" + message);
         }
     }
 

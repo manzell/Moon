@@ -16,7 +16,7 @@ MonoBehaviour:
   type: 4
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}
-  id: 14
+  id: 602
   subtitle: 'Place VP on this structure so that it always has as many hearts as you
     have Organic Production. '
   quote: 'Come over and plant your stuff! '
@@ -24,3 +24,12 @@ MonoBehaviour:
   assimilationValue: []
   resourceRequirements: []
   cardResources: []
+  <VP>k__BackingField:
+    rid: 7149119721755378016
+  references:
+    version: 2
+    RefIds:
+    - rid: 7149119721755378016
+      type: {class: VPPerResourceProduction, ns: moon, asm: Assembly-CSharp}
+      data:
+        resource: {fileID: 11400000, guid: 36436ebf3554f494184658136a06648b, type: 2}

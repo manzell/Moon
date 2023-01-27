@@ -9,15 +9,23 @@ namespace moon
     [System.Serializable]
     public abstract class Phase
     {
-        public System.Action<Phase> PhaseStartEvent, PhaseEndEvent;
+        public static System.Action<Phase> PhaseStartEvent, PhaseEndEvent; 
+        public System.Action<Phase> phaseStartEvent, phaseEndEvent;
 
         protected abstract void OnPhase();
 
         public void StartPhase()
         {
-            Debug.Log($"Starting {this}"); 
-            PhaseStartEvent?.Invoke(this);
+            Debug.Log($"Starting {this}");
+            Game.CurrentPhase = this;
+            phaseStartEvent?.Invoke(this);
             OnPhase();
+        }
+
+        public void EndPhase()
+        {
+            phaseEndEvent?.Invoke(this);
+            NextPhase(this);
         }
 
         public void NextPhase(Phase previousPhase)
@@ -28,12 +36,6 @@ namespace moon
                 Game.CurrentEra.Phases[i].StartPhase();
             else
                 Game.CurrentEra.EndEra(); 
-        }
-
-        public void EndPhase()
-        {
-            PhaseEndEvent?.Invoke(this);
-            NextPhase(this);
         }
     }
 
@@ -96,6 +98,7 @@ namespace moon
 
     public class ScoringPhase : Phase
     {
+        public static System.Action<Flag, Player, List<Resource>> FlagRewardEvent; 
         protected override void OnPhase()
         {
             ScoreFlagRewards();
@@ -112,10 +115,13 @@ namespace moon
             {
                 int max = Game.Players.Max(player => player.Flags.Count(f => f == flag));
                 IEnumerable<Player> qualifyingPlayers = Game.Players.Where(player => player.Flags.Count(f => f == flag) == max);
+                List<Resource> reward = Game.Rewards[flag]; 
 
                 if (qualifyingPlayers.Count() == 1)
                 {
-                    qualifyingPlayers.First().AddResources(Game.Rewards[flag]);
+                    qualifyingPlayers.First().AddResources(reward);
+
+                    FlagRewardEvent?.Invoke(flag, qualifyingPlayers.First(), reward);
                     Game.Rewards[flag].Clear();
                 }
             }
@@ -126,7 +132,9 @@ namespace moon
             foreach (VictoryCard card in player.Tableau)
             {
                 player.AddResources(card.CardResources);
-                player.AddResources(card.VP.Value(player)); 
+
+                for(int i = 0; i < card.VP.Value(player); i++)
+                    player.AddResources(new List<Resource>() { Game.Resources.vp }); 
             }
         }
     }

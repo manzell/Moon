@@ -16,7 +16,7 @@ MonoBehaviour:
   type: 1
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}
-  id: 1
+  id: 501
   subtitle: 'Produces One Metal '
   quote: 'There''s metal everywhere, just dig it up. '
   flagRequirements: []

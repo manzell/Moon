@@ -32,7 +32,8 @@ namespace moon
         public void EndRound()
         {
             PassCards();
-            ShiftTurnOrder();
+            if(Game.Players.Count() > 2)
+                ShiftTurnOrder();
             
             EndRoundEvent?.Invoke(this);
             NextRound(this);
@@ -50,15 +51,16 @@ namespace moon
                     Game.Players[i].AddCardsToHand(Game.Players[i + 1].Hand);
                 }
 
+                Game.Players.Last().RemoveCardsFromHand(Game.Players.Last().Hand); 
                 Game.Players.Last().AddCardsToHand(firstPlayerCards);
             }
         }
 
         public void ShiftTurnOrder()
         {
-            Player firstPlayer = Game.Players.First();
-            Game.Players.Remove(firstPlayer);
-            Game.Players.Add(firstPlayer);
+                Player firstPlayer = Game.Players.First();
+                Game.Players.Remove(firstPlayer);
+                Game.Players.Add(firstPlayer);
         }
     }
 }

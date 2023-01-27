@@ -26,9 +26,4 @@ namespace moon
             OnPlay?.Do(this);
         }
     }
-
-    public struct PlayCardData
-    {
-        public List<Resource> CardResources;
-    }
 }

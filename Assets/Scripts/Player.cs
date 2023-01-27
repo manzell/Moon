@@ -5,6 +5,8 @@ using System.Linq;
 using Unity.Netcode;
 using Mono.Cecil;
 using Sirenix.Utilities;
+using System.Security.Cryptography;
+using Unity.VisualScripting;
 
 namespace moon
 {
@@ -19,7 +21,7 @@ namespace moon
         public System.Action<IConstructionCard> DeployRoverEvent, RecallRoverEvent;
         public System.Action<ResourceCard> ProduceEvent; 
 
-        public ClientRpcParams rpcParams { get; private set; }
+        //public ClientRpcParams rpcParams { get; private set; }
         
         public List<Resource> Resources { get; private set; } = new();
         public List<PlayCard> Tableau { get; private set; } = new();
@@ -35,13 +37,18 @@ namespace moon
 
         public override void OnNetworkSpawn()
         {
-            rpcParams = new()  { Send = new() { TargetClientIds = new List<ulong>() { OwnerClientId } } };
+            //rpcParams = new()  { Send = new() { TargetClientIds = new List<ulong>() { OwnerClientId } } };
 
             Game.AddPlayer(this);
             Game.StartGameEvent += OnGameStart;
 
             if (IsOwner)
                 FindObjectOfType<UI_Game>().SetPlayer(this);
+
+            if (IsHost)
+                Game.StartGameButton.gameObject.SetActive(true);
+
+            Game.StartClientButton.parent.gameObject.SetActive(false);
         }
 
         public void OnGameStart()
@@ -49,13 +56,14 @@ namespace moon
             AddResources(Game.GameSettings.StartingResources); 
         }
 
-        public void AddResources(IEnumerable<Resource> resources) => ModifyResource_ClientRpc(resources.Select(resource => resource.ID).ToArray(), true, rpcParams);
-        public void RemoveResources(IEnumerable<Resource> resources) => ModifyResource_ClientRpc(resources.Select(resource => resource.ID).ToArray(), false, rpcParams);
-        [ClientRpc] void ModifyResource_ClientRpc(int[] ResourceIDs, bool add, ClientRpcParams args)
+        public void AddResources(IEnumerable<Resource> resources) => ModifyResource_ClientRpc(resources.Select(resource => resource.ID).ToArray(), true);
+        public void RemoveResources(IEnumerable<Resource> resources) => ModifyResource_ClientRpc(resources.Select(resource => resource.ID).ToArray(), false);
+        [ClientRpc] void ModifyResource_ClientRpc(int[] ResourceIDs, bool add)
         {
             foreach (int id in ResourceIDs.Distinct())
             {
-                IEnumerable<Resource> resources = ResourceIDs.Where(rid => rid == id).Select(rid => Game.Resources.all.FirstOrDefault(resource => resource.ID == rid));
+                Resource resource = Game.Resources.all.FirstOrDefault(resource => resource.ID == id);
+                IEnumerable<Resource> resources = ResourceIDs.Where(rid => rid == id).Select(rid => resource);
 
                 if(add)
                 {
@@ -72,17 +80,18 @@ namespace moon
                     LoseResourcesEvent?.Invoke(resourcesToRemove);
                 }
 
-                Debug.Log($"{name} {(resources.Count() > 0 ? "+" : "-")}{resources.Count()} {resources.First().name}");
+                //Debug.Log($"{name} {(add ? "+" : "-")}{resources.Count()} {resource.name}. [{Resources.Count(res => res == resource)} left]");
             }
         }
 
-        public void AddCardToTableau(PlayCard card) => ModifyCardsInTableau_ClientRpc(card.ID, true, rpcParams);
-        public void RemoveCardFromTableau(PlayCard card) => ModifyCardsInTableau_ClientRpc(card.ID, false, rpcParams);
-        [ClientRpc] void ModifyCardsInTableau_ClientRpc(int cardID, bool add, ClientRpcParams args)
+        public void AddCardToTableau(PlayCard card) => ModifyCardsInTableau_ClientRpc(card.ID, true);
+        public void RemoveCardFromTableau(PlayCard card) => ModifyCardsInTableau_ClientRpc(card.ID, false);
+        [ClientRpc] void ModifyCardsInTableau_ClientRpc(int cardID, bool add)
         {
-            PlayCard card = Game.Cards.OfType<PlayCard>().FirstOrDefault(card => card.ID == cardID);
+            PlayCard card = Card.GetById<PlayCard>(cardID); 
+                //Game.Cards.OfType<PlayCard>().FirstOrDefault(card => card.ID == cardID);
 
-            if(add)
+            if (add)
             {
                 Tableau.Add(card);
                 AddCardToTableauEvent?.Invoke(this, card);
@@ -94,13 +103,14 @@ namespace moon
             }
         }
        
-        public void AddCardsToHand(IEnumerable<Card> cards) => ModifyCardsInHand_ClientRpc(cards.Select(card => card.ID).ToArray(), true, rpcParams);
-        public void RemoveCardsFromHand(IEnumerable<Card> cards) => ModifyCardsInHand_ClientRpc(cards.Select(card => card.ID).ToArray(), false, rpcParams);
-        [ClientRpc] void ModifyCardsInHand_ClientRpc(int[] cardIDs, bool add, ClientRpcParams args)
+        public void AddCardsToHand(IEnumerable<Card> cards) => ModifyCardsInHand_ClientRpc(cards.Select(card => card.ID).ToArray(), true);
+        public void RemoveCardsFromHand(IEnumerable<Card> cards) => ModifyCardsInHand_ClientRpc(cards.Select(card => card.ID).ToArray(), false);
+        [ClientRpc] void ModifyCardsInHand_ClientRpc(int[] cardIDs, bool add)
         {
-            foreach(int id in cardIDs)
+            foreach (int id in cardIDs)
             {
-                Card card = Game.Cards.FirstOrDefault(card => card.ID == id);
+                Card card = Card.GetById(id);
+                //Game.Cards.FirstOrDefault(card => card.ID == id);
                 if (add)
                 {
                     Hand.Add(card);
@@ -114,20 +124,24 @@ namespace moon
             }
         }
 
-        public void AddReputationCard(ReputationCard card) => AddReputationCard_ClientRpc(card.ID, rpcParams); 
-        [ClientRpc] void AddReputationCard_ClientRpc(int cardID, ClientRpcParams args)
+        public void AddReputationCard(ReputationCard card) => AddReputationCard_ClientRpc(card.ID); 
+        [ClientRpc] void AddReputationCard_ClientRpc(int cardID)
         {
-            ReputationCard card = Game.Cards.OfType<ReputationCard>().FirstOrDefault(card => card.ID == cardID); 
+            ReputationCard card = Card.GetById<ReputationCard>(cardID);
+                //Game.Cards.OfType<ReputationCard>().FirstOrDefault(card => card.ID == cardID); 
             ReputationCards.Add(card);
             ClaimReputationCardEvent?.Invoke(card);
         }
 
-        public void DeployRover(IConstructionCard card) => ModifyRoverLocation_ClientRpc(card.ID, true, rpcParams);
-        public void RecallRover(IConstructionCard card) => ModifyRoverLocation_ClientRpc(card.ID, false, rpcParams);
-        [ClientRpc] void ModifyRoverLocation_ClientRpc(int cardID, bool add, ClientRpcParams args)
+        // This is the way. Only a server-side RoverAction will ever call this, which has already been validated. All this does is tell us to 
+        public void DeployRover(IConstructionCard card) => ModifyRoverLocation_ClientRpc(card.ID, true);
+        public void RecallRover(IConstructionCard card) => ModifyRoverLocation_ClientRpc(card.ID, false);
+        [ClientRpc] void ModifyRoverLocation_ClientRpc(int cardID, bool add)
         {
-            IConstructionCard card = Game.Cards.OfType<IConstructionCard>().FirstOrDefault(card => card.ID == cardID);
-            if(add)
+            IConstructionCard card = Card.GetById<IConstructionCard>(cardID);
+                //Game.Cards.OfType<IConstructionCard>().FirstOrDefault(card => card.ID == cardID);
+
+            if (add)
             {
                 RoverLocations.Add(card);
                 DeployRoverEvent?.Invoke(card);
@@ -145,15 +159,10 @@ namespace moon
             List<Flag> fcost = new(flagCost);
 
             foreach (Resource resource in Resources)
-            {
-                if (rcost.Remove(resource))
-                    Debug.Log($"Paid down 1 {resource.name}"); 
-            }
+                rcost.Remove(resource); 
 
             foreach (Flag flag in Flags)
                 fcost.Remove(flag);
-
-            Debug.Log($"Player owes {rcost.Count} Resources (has {Resources.Count(resource => resource == Game.Resources.wildcard)} Wildcards) and {fcost.Count} Flags"); 
 
             return fcost.Count() == 0 && rcost.Count() <= Resources.Count(resource => resource == Game.Resources.wildcard);
         }

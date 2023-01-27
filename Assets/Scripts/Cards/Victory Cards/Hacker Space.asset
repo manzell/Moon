@@ -16,7 +16,7 @@ MonoBehaviour:
   type: 4
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}
-  id: 13
+  id: 601
   subtitle: 'Place a VP on this structure for each metal you spend to build.  '
   quote: ' '
   flagRequirements: []
@@ -25,3 +25,12 @@ MonoBehaviour:
   resourceRequirements:
   - {fileID: 11400000, guid: 35f22be1ff34a8e469b15a052483096e, type: 2}
   cardResources: []
+  <VP>k__BackingField:
+    rid: 7149119721755378015
+  references:
+    version: 2
+    RefIds:
+    - rid: 7149119721755378015
+      type: {class: VPPerResourceSpent, ns: moon, asm: Assembly-CSharp}
+      data:
+        resource: {fileID: 11400000, guid: 2c0af2ba0b79d054194e5b10054e7560, type: 2}

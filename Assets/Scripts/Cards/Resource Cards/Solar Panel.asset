@@ -16,7 +16,7 @@ MonoBehaviour:
   type: 1
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}
-  id: 5
+  id: 505
   subtitle: 'Produces One Energy '
   quote: 'Energy, straight from the source! '
   flagRequirements: []

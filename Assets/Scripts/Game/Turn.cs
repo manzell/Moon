@@ -20,29 +20,31 @@ namespace moon
         {
             Debug.Log($"Starting {Player.name} turn");
             Game.CurrentTurn = this;
+            Game.CurrentEra.Turns.Add(this); 
             StartTurnEvent?.Invoke(this);
-        }
-
-        public void NextTurn(Turn previousTurn)
-        {
-            Player nextPlayer = Game.Players.Where(player => Game.Players.IndexOf(player) > Game.Players.IndexOf(previousTurn.Player) && 
-                player.Hand.OfType<PlayCard>().Count() > 0).FirstOrDefault();
-
-            if (nextPlayer != null)
-            {
-                Game.CurrentTurn = new Turn(nextPlayer);
-                Game.CurrentTurn.StartTurn();
-            }
-            else
-            {
-                Game.CurrentRound.EndRound();
-            }
         }
 
         public void EndTurn()
         {
             EndTurnEvent?.Invoke(this);
             NextTurn(this);
+        }
+
+        void NextTurn(Turn previousTurn)
+        {
+            Player nextPlayer = Game.Players.Where(player => Game.Players.IndexOf(player) > Game.Players.IndexOf(Player) && 
+                player.Hand.OfType<PlayCard>().Count() > 0).FirstOrDefault();
+
+            if (nextPlayer != null)
+            {
+                Debug.Log($"End Turn [#{Game.CurrentRound.Turns.Count()} - {Game.CurrentTurn.Player}");
+                Game.CurrentTurn = new Turn(nextPlayer);
+                Game.CurrentTurn.StartTurn(); // This does not trigger StartTurn() on the client I think this is a server-only thread. 
+            }
+            else
+            {
+                Game.CurrentRound.EndRound();
+            }
         }
     }
 }

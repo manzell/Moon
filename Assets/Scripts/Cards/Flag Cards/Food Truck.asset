@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5e84e8b726936c41b3a6c60be7178d5, type: 3}
   m_Name: Food Truck
   m_EditorClassIdentifier: 
-  prefab: {fileID: 3436144375801848052, guid: bbaf0e5cc277afb46b8c6df2ba9ff565, type: 3}
+  prefab: {fileID: 5418166782717950381, guid: bbaf0e5cc277afb46b8c6df2ba9ff565, type: 3}
   type: 2
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}
-  id: 7
+  id: 301
   subtitle: 'One Food and One Transportation Flag '
   quote: 'Lots of oxygen is spent every day waiting in line for this. '
   flagRequirements:

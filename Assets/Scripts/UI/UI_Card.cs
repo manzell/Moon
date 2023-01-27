@@ -10,7 +10,7 @@ namespace moon
     {
         protected Game game; 
         [field: SerializeField] public ICard Card { get; private set; }
-        [SerializeField] TextMeshProUGUI cardName;
+        [SerializeField] protected TextMeshProUGUI cardName;
         [SerializeField] protected Image cardImage;
         [SerializeField] protected RawImage backgroundImage;
 
@@ -32,7 +32,7 @@ namespace moon
         {
             name = Card.name; 
             cardName.text = Card.name;
-            cardImage.sprite = Card.CardImage;
+            //cardImage.sprite = Card.CardImage;
         }
     }
 }

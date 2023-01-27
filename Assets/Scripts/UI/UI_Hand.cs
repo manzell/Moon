@@ -10,7 +10,7 @@ namespace moon
     {
         public void OnDrop(PointerEventData eventData)
         {
-            char[] nombre = new char[4]; 
+            Debug.Log("UI_Hand Area Drop");
 
             if (eventData.selectedObject.TryGetComponent(out UI_ReputationCard UI))
                 FindObjectOfType<Game>().ClaimReputation_ServerRpc(Game.Player.OwnerClientId, UI.Card.ID); 

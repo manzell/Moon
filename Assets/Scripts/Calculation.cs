@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace moon
 {
+    [System.Serializable]
     public abstract class Calculation<T>
     {
         bool calculated = false;
@@ -24,4 +25,6 @@ namespace moon
 
         public T Test(Player player) => Calculate(player);
     }
+
+    public abstract class IntCalc : Calculation<int> { }
 }

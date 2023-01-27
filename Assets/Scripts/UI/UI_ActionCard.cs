@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 namespace moon
 {
-    public class UI_ActionCard : UI_Card, IPointerDownHandler
+    public class UI_ActionCard : UI_PlayCard, IPointerDownHandler
     {
         float lastClick = 0;
 
@@ -17,7 +17,9 @@ namespace moon
             if (Time.time - lastClick < 0.25f && Time.time > lastClick) // Arbitrary Double-click time width;
             {
                 lastClick = Time.time + 2f; // Arbitrary Double-click lock out 
-                FindObjectOfType<Game>().UseCardAction_ServerRpc(Game.Player.OwnerClientId, Card.ID); 
+
+                if (Game.Player == Game.CurrentTurn.Player && Game.Player.Tableau.Contains(Card as ActionCard))
+                    FindObjectOfType<Game>().UseCardAction_ServerRpc(Game.Player.OwnerClientId, Card.ID); 
             }
             else
                 lastClick = Time.time;

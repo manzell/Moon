@@ -16,7 +16,7 @@ MonoBehaviour:
   type: 1
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}
-  id: 6
+  id: 506
   subtitle: Produces One Organic
   quote: 'Your dirt is worth more than gold here.  '
   flagRequirements: []

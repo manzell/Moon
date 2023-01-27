@@ -14,10 +14,13 @@ namespace moon
         [field: SerializeField] public List<Phase> Phases { get; private set; }
         [field: SerializeField] public int Multiplier { get; private set; }
 
+        public List<Turn> Turns { get; private set; }
+
         public void StartEra()
         {
             Debug.Log($"Starting {name}");
             Game.CurrentEra = this;
+            Turns = new(); 
 
             AddEraCardsToDeck();
             AddEraRewards();
@@ -45,9 +48,11 @@ namespace moon
         {
             Game game = FindObjectOfType<Game>();
 
+            foreach (PlayCard card in Deck.OfType<PlayCard>().OrderBy(x => Random.value))
+                game.AddCardToDeck_ClientRpc(card.ID);
+
             game.AddReputationCards(Deck.OfType<ReputationCard>().OrderBy(x => Random.value).Take(3));
-            foreach (PlayCard card in Deck.OrderBy(x => Random.value))
-                game.AddCardToDeck_ClientRpc(card.ID);                 
+                           
 
         }
 
