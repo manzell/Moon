@@ -29,15 +29,15 @@ namespace moon
         {
             IEnumerable<IConstructionCard> cards = player.Tableau.OfType<IConstructionCard>().Where(card => card.Rover != null);
             IEnumerable<Resource> rovers = player.Resources.Where(res => res == Game.Resources.rover);
-            player.RemoveResources(rovers); // Remove the player's rovers from supply
-            (Card as PlayCard).CardResources.AddRange(rovers); // Add the rovers to the RoverStop
+            player.RemoveResources(rovers); 
+            (Card as PlayCard).CardResources.AddRange(rovers); 
 
             cards.ForEach(card => {
-                card.SetRover(null); // Remove any rover from the card
-                (Card as PlayCard).CardResources.Add(Game.Resources.rover); //  Add a rover to the RoverStop
+                card.SetRover(null);
+                (Card as PlayCard).CardResources.Add(Game.Resources.rover);
             });
 
-            player.AddResources(rovers.Select(rover => Game.Resources.vp).Union(cards.Select(card => Game.Resources.vp))); // Give VP for each rover in supply && moved
+            player.AddResources(rovers.Select(rover => Game.Resources.vp).Union(cards.Select(card => Game.Resources.vp)));
         }
     }
 

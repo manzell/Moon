@@ -30,10 +30,7 @@ namespace moon
     {
         public override Task<List<Resource>> Production()
         {
-            var x = Task<List<Resource>>.FromResult(resources);
-            Debug.Log(resources.First().name); 
-
-            return x; 
+            return Task<List<Resource>>.FromResult(resources); 
         }
     }
 
