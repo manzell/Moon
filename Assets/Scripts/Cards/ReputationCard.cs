@@ -197,7 +197,7 @@ namespace moon
     {
         protected override bool Calculate(Player player)
         {
-            return Game.CurrentTurn.Actions.OfType<AssimilateAction>().Count() > 0; 
+            return Game.CurrentTurn?.Actions.OfType<AssimilateAction>().Count() > 0; 
         }
     }
 

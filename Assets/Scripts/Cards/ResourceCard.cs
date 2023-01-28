@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace moon
@@ -17,34 +18,30 @@ namespace moon
     }
 
     [System.Serializable]
-    public abstract class ProductionAction : Calculation<List<Resource>>
+    public abstract class ProductionAction
     {
-        public abstract IEnumerable<GameObject> Icons { get; } 
+        public virtual IEnumerable<GameObject> Icons => resources.Select(r => r.Prefab);
+        [SerializeField] protected List<Resource> resources;
+
+        public abstract Task<List<Resource>> Production();
     }
 
     public class BasicProduction : ProductionAction
     {
-        public override IEnumerable<GameObject> Icons => resources.Select(r => r.Prefab); 
-        [SerializeField] List<Resource> resources;
+        public override Task<List<Resource>> Production()
+        {
+            var x = Task<List<Resource>>.FromResult(resources);
+            Debug.Log(resources.First().name); 
 
-        protected override List<Resource> Calculate(Player player) => resources;
+            return x; 
+        }
     }
 
     public class SelectProduction : ProductionAction
     {
-        public override IEnumerable<GameObject> Icons => new List<GameObject> { Game.Resources.wildcard.Prefab }; 
-        [SerializeField] List<Resource> resources;
+        public override IEnumerable<GameObject> Icons => resources.Select(r => Game.Resources.wildcard.Prefab);
 
-        protected override List<Resource> Calculate(Player player)
-        {
-            UI_SelectionWindow window = GameObject.Instantiate(Game.Graphics.SelectionPrefab, GameObject.FindObjectOfType<UI_Game>().transform);
-
-            Debug.Log("Choice Calculation pre");
-            window.StartSelection();
-
-            // TODO Something needs to be awaited somewhere? 
-            Debug.Log("Choice Calculation post"); 
-            return new List<Resource>() { window.Selection.Task.Result as Resource };
-        }
+        public override async Task<List<Resource>> Production() => 
+            new List<Resource>() { await new Selection<Resource>(resources).Completion };
     }
 }

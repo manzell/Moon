@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace moon
 {
-    public class Flag : ScriptableObject, IIcon
+    public class Flag : ScriptableObject, IIcon, ISelectable
     {
         public int ID => id;
         [SerializeField] Sprite icon;

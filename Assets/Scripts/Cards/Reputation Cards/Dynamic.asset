@@ -12,22 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df4cf69226c7d414582ae6bece9a2ed6, type: 3}
   m_Name: Dynamic
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1632412104907649639, guid: 0868d58dcae62024da61e8438d4f3c96, type: 3}
+  prefab: {fileID: 8959922124561023805, guid: 0868d58dcae62024da61e8438d4f3c96, type: 3}
   type: 1
   era: {fileID: 11400000, guid: e91a45711c7ce6c46b3046a9a886804c, type: 2}
   cardImage: {fileID: 0}
   id: 408
   <GoalLevel>k__BackingField: 1
   <VP>k__BackingField: 3
-  <conditionText>k__BackingField: 
-  <ClaimCondition>k__BackingField:
-    rid: 7149119721755377949
+  <conditionText>k__BackingField: 'Have six or more blue structures, including base '
+  <CanClaim>k__BackingField:
+    rid: 7149119721755378108
   <ClaimAction>k__BackingField:
-    rid: -2
+    rid: 7149119721755378081
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
-    - rid: 7149119721755377949
+    - rid: 7149119721755378081
+      type: {class: NullAction, ns: moon, asm: Assembly-CSharp}
+    - rid: 7149119721755378108
       type: {class: DynamicCalc, ns: moon, asm: Assembly-CSharp}

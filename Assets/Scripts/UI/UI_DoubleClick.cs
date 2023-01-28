@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace moon
 {
-    public class Selection : MonoBehaviour
+    public class UI_DoubleClick : MonoBehaviour
     {
         // Start is called before the first frame update
         void Start()

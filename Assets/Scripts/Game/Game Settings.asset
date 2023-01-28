@@ -45,6 +45,18 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  Bases:
+  - {fileID: 11400000, guid: 619e486d227db4f49a61c248a54c4000, type: 2}
+  - {fileID: 11400000, guid: 83b4ce89ffacc8249ac858060cca0461, type: 2}
+  - {fileID: 11400000, guid: 464632adee7c0ac4f82800581130f597, type: 2}
+  - {fileID: 11400000, guid: 9fb99a4b9b3a5e24dba9a42051a75250, type: 2}
+  - {fileID: 11400000, guid: 2705ed3346da7ba4e8b82db38723a23f, type: 2}
   StartingResources:
   - {fileID: 11400000, guid: 0afad15af1c3a5f49828a19b53318254, type: 2}
   - {fileID: 11400000, guid: 0afad15af1c3a5f49828a19b53318254, type: 2}
+  FirstPlayerExpedition: {fileID: 11400000, guid: c54bf4440e892f1478483f6a0f6df3aa, type: 2}
+  ExpeditionCards:
+  - {fileID: 11400000, guid: dd9fec7a503dd434dac72e5f888eb7b9, type: 2}
+  - {fileID: 11400000, guid: c7d3a73c5cc95de468e00572d9761b55, type: 2}
+  - {fileID: 11400000, guid: 3ab0a8c98e8ffa04eb0045a2acda3e5c, type: 2}
+  - {fileID: 11400000, guid: 7bc54b959b95a154091d165b573e0d4d, type: 2}

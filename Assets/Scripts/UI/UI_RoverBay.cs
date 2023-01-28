@@ -26,6 +26,7 @@ namespace moon
 
         public void Style()
         {
+            Debug.Log($"Styling Rover Bay on {card.name}. {card.Rover == null}"); 
             RoverIcon.sprite = card.Rover == null ? AvailableIcon : OccupiedIcon;
         }
 

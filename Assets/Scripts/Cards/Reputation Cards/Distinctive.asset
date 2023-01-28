@@ -12,22 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df4cf69226c7d414582ae6bece9a2ed6, type: 3}
   m_Name: Distinctive
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1632412104907649639, guid: 0868d58dcae62024da61e8438d4f3c96, type: 3}
+  prefab: {fileID: 8959922124561023805, guid: 0868d58dcae62024da61e8438d4f3c96, type: 3}
   type: 1
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}
   id: 406
   <GoalLevel>k__BackingField: 0
   <VP>k__BackingField: 1
-  <conditionText>k__BackingField: 
-  <ClaimCondition>k__BackingField:
-    rid: 7149119721755377947
+  <conditionText>k__BackingField: 'Have three or more of one flag type '
+  <CanClaim>k__BackingField:
+    rid: 7149119721755378106
   <ClaimAction>k__BackingField:
     rid: 7149119721755377970
   references:
     version: 2
     RefIds:
-    - rid: 7149119721755377947
-      type: {class: DistinctiveCalc, ns: moon, asm: Assembly-CSharp}
     - rid: 7149119721755377970
       type: {class: DistinctiveAction, ns: moon, asm: Assembly-CSharp}
+    - rid: 7149119721755378106
+      type: {class: DistinctiveCalc, ns: moon, asm: Assembly-CSharp}

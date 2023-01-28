@@ -4,12 +4,10 @@ using UnityEngine;
 
 namespace moon
 {
-    [CreateAssetMenu (menuName = "Card/Base Card")]
-    public class BaseCard : ScriptableObject
+    [CreateAssetMenu (menuName = "Cards/Base Card")]
+    public class BaseCard : Card
     {
-        public string Name { get; private set; }
-
-        public Resource ProductionResource { get; private set; }
-        public Flag Flag { get; private set; }
+        [field: SerializeField] public Resource ProductionResource { get; private set; }
+        [field: SerializeField] public Flag Flag { get; private set; }
     }
 }

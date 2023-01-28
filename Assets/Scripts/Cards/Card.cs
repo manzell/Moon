@@ -9,13 +9,13 @@ namespace moon
     {
         public enum CardType { Expedition, Reputation, Production, Flag, Action, Victory }
 
-        [SerializeField] UI_Card prefab;
+        [SerializeField] GameObject prefab;
         [SerializeField] CardType type;
         [SerializeField] Era era;
         [SerializeField] Sprite cardImage;
         [SerializeField] int id; 
 
-        public UI_Card Prefab => prefab; 
+        public GameObject Prefab => prefab; 
         public CardType Type => type;
         public Era Era => era; 
         public Sprite CardImage => cardImage;

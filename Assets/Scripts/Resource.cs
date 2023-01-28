@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace moon
 {
-    public class Resource : ScriptableObject, IIcon
+    public class Resource : ScriptableObject, IIcon, ISelectable
     {
         public int ID => id; 
         public Sprite Icon => icon;

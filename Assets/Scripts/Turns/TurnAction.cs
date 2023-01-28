@@ -47,7 +47,7 @@ namespace moon
             return canAfford && !preexistingActions; 
         }
 
-        protected override void Do(Player player)
+        protected async override void Do(Player player)
         {
             Debug.Log($"Building {Card.name} in {player.name}'s Tableau");
             player.RemoveResources(card.ResourceRequirements);
@@ -55,7 +55,7 @@ namespace moon
             player.AddCardToTableau(card);
 
             if (Card is ResourceCard resourceCard)
-                player.AddResources(resourceCard.productionAction.Value(player)); 
+                player.AddResources(await resourceCard.productionAction.Production()); 
         }
     }
 
@@ -83,7 +83,7 @@ namespace moon
         public override bool Can(Player player) => player.CanAfford(cost, new List<Flag>()) &&
             !Game.CurrentTurn.Actions.OfType<ExpeditionAction>().Any();
 
-        protected override void Do(Player player)
+        protected async override void Do(Player player)
         {
             Debug.Log("Rover Action"); 
             player.RemoveResources(cost);
@@ -92,13 +92,7 @@ namespace moon
             (Card as IConstructionCard).SetRover(player); // - How do we let the opposing players know that a Rover has been deployed on their card? 
 
             if (Card is ResourceCard resourceCard)
-            {
-                List<Resource> prod = resourceCard.productionAction.Value(player);
-
-                Debug.Log($"{resourceCard.name} has {string.Join("/", prod.Select(res => res.name))}");
-
-                player.AddResources(prod);
-            }
+                player.AddResources(await resourceCard.productionAction.Production());
         }
     }
 

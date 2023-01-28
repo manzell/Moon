@@ -12,20 +12,13 @@ namespace moon
         [SerializeField] Resource resource;
         [SerializeField] Image background, resourceIcon;
         [SerializeField] TextMeshProUGUI resourceCount;
-        Player player;
-        Game game; 
 
-        public void SetPlayer(Player player)
+        public void Setup()
         {
-            this.player = player;
-
-            game = FindObjectOfType<Game>();
-
-            player.AddResourcesEvent += UpdateCount;
-            player.LoseResourcesEvent += UpdateCount;
-
+            Game.Player.AddResourcesEvent += r => UpdateCount();
+            Game.Player.LoseResourcesEvent += r => UpdateCount();
             Style();
-            UpdateCount(player.Resources); 
+            UpdateCount(); 
         }
 
         void Style()
@@ -34,6 +27,6 @@ namespace moon
             resourceIcon.sprite = resource.Icon;
         }
 
-        void UpdateCount(IEnumerable<Resource> resources) => resourceCount.text = player.Resources.Count(resource => resource == this.resource).ToString();
+        void UpdateCount() => resourceCount.text = Game.Player.Resources.Count(resource => resource == this.resource).ToString();
     }
 }

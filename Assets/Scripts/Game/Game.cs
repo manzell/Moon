@@ -11,11 +11,9 @@ namespace moon
         public static System.Action StartGameEvent, EndGameEvent;
         public static System.Action<ReputationCard> ClaimReputationCardEvent, AddReputationCardToGameEvent;
 
-        public static Transform StartServerButton => FindObjectOfType<Game>().startServerButton;
-        public static Transform StartHostButton => FindObjectOfType<Game>().startHostButton;
-        public static Transform StartClientButton => FindObjectOfType<Game>().startClientButton;
-        public static Transform StartGameButton => FindObjectOfType<Game>().startGameButton;
-        [SerializeField] Transform startServerButton, startHostButton, startClientButton, startGameButton;
+        [SerializeField] public Transform startHostButton;
+        [SerializeField] public Transform startClientButton;
+        [SerializeField] public Transform startGameButton;
 
         public static GameSettings GameSettings => FindObjectOfType<Game>().gameSettings;
         [SerializeField] GameSettings gameSettings;
@@ -28,6 +26,9 @@ namespace moon
 
         public static Flags Flags;
         [SerializeField] Flags flags;
+
+        public static UI_SelectionWindow SelectionWindow => FindObjectOfType<Game>().selectionWindowPrefab; 
+        [SerializeField] UI_SelectionWindow selectionWindowPrefab; 
 
         public static Player Player;
         public static List<Player> Players = new();
@@ -61,19 +62,47 @@ namespace moon
                 Debug.Log($"{player.name} Added to the Game!");
 
                 if (player.IsOwner)
+                {
+                    FindObjectOfType<UI_Game>().SetPlayer(player); 
                     Player = player;
+                }
             }
         }
 
         #region Game-Turn-Order-Management
 
-        [ClientRpc] public void StartGame_ClientRpc()
+        [ServerRpc] public void StartGame_ServerRpc()
+        {
+            Stack<ExpeditionCard> expeditionCards = new(gameSettings.ExpeditionCards.OrderBy(x => Random.value).Take(Players.Count));
+            Stack<BaseCard> baseCards = new(gameSettings.Bases.OrderBy(x => Random.value).Take(Players.Count));
+
+            Cards.Add(gameSettings.FirstPlayerExpedition);
+            Cards.UnionWith(gameSettings.ExpeditionCards);
+            Cards.UnionWith(gameSettings.Bases);
+
+            if(Players.Count > 1) 
+                Players[0].AddCardsToHand(new List<ExpeditionCard>() { gameSettings.FirstPlayerExpedition });
+
+            for (int i = 0; i < Players.Count; i++)
+                if (Players[i].Hand.OfType<ExpeditionCard>().Count() == 0)
+                    Players[i].AddCardsToHand(new List<ExpeditionCard>() { expeditionCards.Pop() });
+
+            Players.ForEach(player => {
+                player.AddResources(gameSettings.StartingResources);
+                player.SetBase(baseCards.Pop()); 
+            }); 
+
+            StartGame_ClientRpc(); 
+        }
+
+        [ClientRpc] void StartGame_ClientRpc()
         {
             Eras = new(GameSettings.Eras);
             Cards.UnionWith(Eras.SelectMany(era => era.Deck));
 
             if (Players.Count > 0 && Players.Count < 6)
             {
+                startGameButton.gameObject.SetActive(false);
                 Debug.Log($"Starting {Eras.Count}-Era Game for {Players.Count} players");
                 StartGameEvent?.Invoke();
 

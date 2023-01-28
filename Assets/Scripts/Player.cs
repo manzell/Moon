@@ -14,8 +14,9 @@ namespace moon
     {
         public static Player GetById(ulong playerID) => Game.Players.FirstOrDefault(player => player.OwnerClientId == playerID);
 
-        public System.Action<IEnumerable<Resource>> AddResourcesEvent, LoseResourcesEvent;
         public static System.Action<Player, PlayCard> AddCardToTableauEvent, RemoveCardFromTableauEvent;
+        public System.Action setBaseCardEvent; 
+        public System.Action<IEnumerable<Resource>> AddResourcesEvent, LoseResourcesEvent;
         public System.Action<Card> AddCardToHandEvent, RemoveCardFromHandEvent;
         public System.Action<ReputationCard> ClaimReputationCardEvent;
         public System.Action<IConstructionCard> DeployRoverEvent, RecallRoverEvent;
@@ -28,32 +29,17 @@ namespace moon
         public List<Card> Hand { get; private set; } = new();
         public List<ReputationCard> ReputationCards { get; private set; } = new();
         public List<IConstructionCard> RoverLocations { get; private set; } = new();
-        public BaseCard BaseCard { get; private set; } // Has no RPCs
+        public BaseCard BaseCard { get; private set; }
 
         public IEnumerable<Flag> Flags => Tableau.OfType<FlagCard>().SelectMany(card => card.Flags)
-            .Union(RoverLocations.OfType<FlagCard>().SelectMany(card => card.Flags));
+            .Union(RoverLocations.OfType<FlagCard>().SelectMany(card => card.Flags))
+            .Union(new List<Flag>() { BaseCard.Flag });
 
         public ExpeditionCard ExpeditionCard => Hand.OfType<ExpeditionCard>().FirstOrDefault(); 
 
         public override void OnNetworkSpawn()
         {
-            //rpcParams = new()  { Send = new() { TargetClientIds = new List<ulong>() { OwnerClientId } } };
-
             Game.AddPlayer(this);
-            Game.StartGameEvent += OnGameStart;
-
-            if (IsOwner)
-                FindObjectOfType<UI_Game>().SetPlayer(this);
-
-            if (IsHost)
-                Game.StartGameButton.gameObject.SetActive(true);
-
-            Game.StartClientButton.parent.gameObject.SetActive(false);
-        }
-
-        public void OnGameStart()
-        {
-            AddResources(Game.GameSettings.StartingResources); 
         }
 
         public void AddResources(IEnumerable<Resource> resources) => ModifyResource_ClientRpc(resources.Select(resource => resource.ID).ToArray(), true);
@@ -82,6 +68,13 @@ namespace moon
 
                 //Debug.Log($"{name} {(add ? "+" : "-")}{resources.Count()} {resource.name}. [{Resources.Count(res => res == resource)} left]");
             }
+        }
+
+        public void SetBase(BaseCard card) => SetBase_ClientRpc(card.ID); 
+        [ClientRpc] void SetBase_ClientRpc(int baseID)
+        {
+            BaseCard = Card.GetById<BaseCard>(baseID);
+            setBaseCardEvent?.Invoke(); 
         }
 
         public void AddCardToTableau(PlayCard card) => ModifyCardsInTableau_ClientRpc(card.ID, true);

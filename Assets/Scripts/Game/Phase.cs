@@ -41,15 +41,20 @@ namespace moon
 
     public class ProductionPhase : Phase
     {
-        protected override void OnPhase()
+        protected async override void OnPhase()
         {
             foreach (Player player in Game.Players)
             {
                 foreach (ResourceCard card in player.Tableau)
                 {
-                    player.AddResources(card.productionAction.Value(player));
+                    List<Resource> resources = await card.productionAction.Production();
+                    Debug.Log(resources.Count); 
+
+                    player.AddResources(resources); 
                     player.ProduceEvent?.Invoke(card); 
                 }
+
+                player.AddResources(new List<Resource>() { player.BaseCard.ProductionResource });
             }
 
             EndPhase();
@@ -84,7 +89,7 @@ namespace moon
             {
                 foreach (Player player in Game.Players)
                 {
-                    if (Game.Deck.Count > 0 && player.Hand.Count < cardsToDeal)
+                    if (Game.Deck.Count > 0 && player.Hand.OfType<PlayCard>().Count() < cardsToDeal)
                     {
                         Card card = Game.Deck.Pop();
                         Debug.Log($"Dealing {card.name} to {player.name}");

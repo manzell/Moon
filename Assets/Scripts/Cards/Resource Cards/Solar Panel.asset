@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bebd065cc00bd4945ace5e92512bafd4, type: 3}
   m_Name: Solar Panel
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5310856041065508321, guid: 2f35088daab0ed545a953e6a63e64567, type: 3}
+  prefab: {fileID: 6889580286731067202, guid: 2f35088daab0ed545a953e6a63e64567, type: 3}
   type: 1
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}

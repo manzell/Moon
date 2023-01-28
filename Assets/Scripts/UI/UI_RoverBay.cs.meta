@@ -3,7 +3,10 @@ guid: fd89ee560db53a94e9cc5f52604f5158
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - RoverIcon: {instanceID: 0}
+  - AvailableIcon: {fileID: 21300000, guid: a503d97cf86fc2142b0b129c81ce4347, type: 3}
+  - OccupiedIcon: {fileID: 21300000, guid: a82e6c77b28bbe94a88b640ec2df2912, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

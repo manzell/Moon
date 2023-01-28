@@ -15,23 +15,21 @@ namespace moon
         [SerializeField] Image roverImage;
         [SerializeField] TextMeshProUGUI count;
 
-        public Player player {  get; private set; }
         RectTransform rect;
         GameObject rover;
 
-        public void SetPlayer(Player player)
+        public void Setup()
         {
-            this.player = player; 
-            player.AddResourcesEvent += r => { if (r.Any(resource => resource == Game.Resources.rover)) Style(); };
-            player.LoseResourcesEvent += r => { if (r.Any(resource => resource == Game.Resources.rover)) Style(); };
-            Game.StartGameEvent += Style;
+            Game.Player.AddResourcesEvent += r => { if (r.Any(resource => resource == Game.Resources.rover)) Style(); };
+            Game.Player.LoseResourcesEvent += r => { if (r.Any(resource => resource == Game.Resources.rover)) Style(); };
+            Style();
         }
 
-        void Style() => count.text = player.Resources.Count(resource => resource == Game.Resources.rover).ToString(); 
+        void Style() => count.text = Game.Player.Resources.Count(resource => resource == Game.Resources.rover).ToString(); 
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (player.Resources.Count(resource => resource == Game.Resources.rover) >= 1)
+            if (Game.Player.Resources.Count(resource => resource == Game.Resources.rover) >= 1)
             {
                 rover = Instantiate(roverImage.gameObject, transform);
                 rect = rover.GetComponent<RectTransform>();
