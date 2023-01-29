@@ -73,7 +73,7 @@ namespace moon
     public class ExpeditionAction : TurnAction
     {
         public override bool Can(Player player) => !Game.CurrentTurn.Actions.OfType<ExpeditionAction>().Any();
-        protected override void Do(Player player) => (Card as ExpeditionCard).ExpeditionAction.Execute(player); // NOTE - How and when do we set the player on an Expedition Card? We'll do it later. 
+        protected override void Do(Player player) => (Card as ExpeditionCard).ExpeditionAction.Execute(player);
     }
 
     public class RoverAction : TurnAction
@@ -104,7 +104,7 @@ namespace moon
             Debug.Log(Card);
             Debug.Log(Card as ActionCard);
             Debug.Log((Card as ActionCard).FlipAction); 
-            (Card as ActionCard).FlipAction.Execute(player); // NOTE - How and when do we set the player on an Flip Card? We'll do it later. 
+            (Card as ActionCard).FlipAction.Execute(player);
         }
     }
 
@@ -113,7 +113,7 @@ namespace moon
         public override bool Can(Player player) => !Game.CurrentTurn.Actions.OfType<ClaimReputationAction>().Any();
         protected override void Do(Player player)
         {
-            Game.ReputationCards.Remove(Card as ReputationCard); // Need to throw an event? Maybe Game.ClaimReputationCard needs to be a client RPC
+            Game.ReputationCards.Remove(Card as ReputationCard);
             player.AddReputationCard(Card as ReputationCard); 
         }
     }

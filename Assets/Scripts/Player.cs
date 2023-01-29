@@ -22,8 +22,6 @@ namespace moon
         public System.Action<ReputationCard> ClaimReputationCardEvent;
         public System.Action<IConstructionCard> DeployRoverEvent, RecallRoverEvent;
         public System.Action<ResourceCard> ProduceEvent; 
-
-        //public ClientRpcParams rpcParams { get; private set; }
         
         public List<Resource> Resources { get; private set; } = new();
         public List<PlayCard> Tableau { get; private set; } = new();
@@ -63,23 +61,15 @@ namespace moon
                         .OrderByDescending(resource => resource != Game.Resources.wildcard).Take(resources.Count());
 
                     resourcesToRemove.ForEach(resource => Resources.Remove(resource)); 
-
                     LoseResourcesEvent?.Invoke(resourcesToRemove);
                 }
-
-                //Debug.Log($"{name} {(add ? "+" : "-")}{resources.Count()} {resource.name}. [{Resources.Count(res => res == resource)} left]");
             }
         }
 
         public void SetBase(BaseCard card) => SetBase_ClientRpc(card.ID); 
         [ClientRpc] void SetBase_ClientRpc(int baseID)
         {
-            Debug.Log($"SetBase_ClientRPC {name}"); 
             BaseCard = Card.GetById<BaseCard>(baseID);
-
-            FindObjectsOfType<TextMeshProUGUI>().ForEach(t => t.color = Color.red);
-            FindObjectOfType<UI_Game>().SetMessage($"Setting Base Card: {BaseCard.name}");
-
             setBaseCardEvent?.Invoke(); 
         }
 
@@ -108,7 +98,7 @@ namespace moon
             foreach (int id in cardIDs)
             {
                 Card card = Card.GetById(id);
-                //Game.Cards.FirstOrDefault(card => card.ID == id);
+
                 if (add)
                 {
                     Hand.Add(card);
@@ -126,18 +116,15 @@ namespace moon
         [ClientRpc] void AddReputationCard_ClientRpc(int cardID)
         {
             ReputationCard card = Card.GetById<ReputationCard>(cardID);
-                //Game.Cards.OfType<ReputationCard>().FirstOrDefault(card => card.ID == cardID); 
             ReputationCards.Add(card);
             ClaimReputationCardEvent?.Invoke(card);
         }
 
-        // This is the way. Only a server-side RoverAction will ever call this, which has already been validated. All this does is tell us to 
         public void DeployRover(IConstructionCard card) => ModifyRoverLocation_ClientRpc(card.ID, true);
         public void RecallRover(IConstructionCard card) => ModifyRoverLocation_ClientRpc(card.ID, false);
         [ClientRpc] void ModifyRoverLocation_ClientRpc(int cardID, bool add)
         {
             IConstructionCard card = Card.GetById<IConstructionCard>(cardID);
-                //Game.Cards.OfType<IConstructionCard>().FirstOrDefault(card => card.ID == cardID);
 
             if (add)
             {

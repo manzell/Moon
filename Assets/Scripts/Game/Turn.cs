@@ -41,7 +41,7 @@ namespace moon
             {
                 Debug.Log($"End Turn [#{Game.CurrentRound.Turns.Count()} - {Game.CurrentTurn.Player.name}");
                 Game.CurrentTurn = new Turn(nextPlayer);
-                Game.CurrentTurn.StartTurn(); // This does not trigger StartTurn() on the client I think this is a server-only thread. 
+                Game.CurrentTurn.StartTurn(); 
             }
             else
             {

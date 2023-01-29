@@ -89,15 +89,9 @@ namespace moon
                     Players[i].SetBase(BaseCards[i]);                
 
                     if (i == 0 && Players.Count > 1)
-                    {
-                        Debug.Log($"{Players[i].name} Expedition Card = {gameSettings.FirstPlayerExpedition.name}");
                         Players[i].AddCardsToHand(new List<ExpeditionCard>() { gameSettings.FirstPlayerExpedition });
-                    }
                     else
-                    {
-                        Debug.Log($"{Players[i].name} Expedition Card = {ExpeditionCards[i].name}");
                         Players[i].AddCardsToHand(new List<ExpeditionCard>() { ExpeditionCards[i] });
-                    }
                 }
 
                 StartGame_ClientRpc();
@@ -110,12 +104,7 @@ namespace moon
 
         [ClientRpc] void StartGame_ClientRpc()
         {
-            Debug.Log($"Starting {Eras.Count}-Era Game for {Players.Count} players");
-            Debug.Log($"{BaseCards.Count} Base Cards; {ExpeditionCards.Count} Expedition Cards");
-
             StartGameEvent?.Invoke();
-
-            FindObjectOfType<UI_Game>().SetMessage($"Eras - {Eras.Count}"); 
             Eras.Dequeue().StartEra();
         }
 
@@ -184,7 +173,6 @@ namespace moon
         {
             Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
             IConstructionCard card = Card.GetById(destinationcardID) as IConstructionCard; 
-            //IConstructionCard card = player.Hand.OfType<IConstructionCard>().FirstOrDefault(card => card.ID == destinationcardID);
 
             TurnAction action = new RoverAction();
             action.SetCard(card);
@@ -195,10 +183,9 @@ namespace moon
         public void UseCardAction_ServerRpc(ulong playerID, int cardID)
         {
             Player player = Player.GetById(playerID); 
-                //.FirstOrDefault(player => playerID == player.OwnerClientId);
-            ActionCard card = Card.GetById<ActionCard>(cardID);
-            
+            ActionCard card = Card.GetById<ActionCard>(cardID);            
             TurnAction action = new FlipCardAction();
+
             action.SetCard(card);
             action.Execute(player);
         }

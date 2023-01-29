@@ -18,7 +18,7 @@ namespace moon
         {
             this.card = card;
 
-            card.AddRoverEvent += player => Style(); // We're listening to our LOCAL copy. 
+            card.AddRoverEvent += player => Style();
             card.RemoveRoverEvent += Style; 
 
             Style(); 
