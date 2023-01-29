@@ -94,7 +94,7 @@ namespace moon
     {
         protected override bool Calculate(Player player)
         {
-            return Game.CurrentTurn.Actions.OfType<PlayCardAction>().Sum(action => (action.Card as PlayCard).ResourceRequirements.Count()) >= 7;
+            return Game.CurrentTurn.Actions.OfType<BuildAction>().Sum(action => (action.Card as PlayCard).ResourceRequirements.Count()) >= 7;
         }
     }
 
@@ -162,7 +162,7 @@ namespace moon
     {
         protected override bool Calculate(Player player)
         {
-            return Game.CurrentTurn.Actions.OfType<PlayCardAction>().Sum(action => (action.Card as PlayCard).ResourceRequirements.Count()) >= 4;
+            return Game.CurrentTurn.Actions.OfType<BuildAction>().Sum(action => (action.Card as PlayCard).ResourceRequirements.Count()) >= 4;
         }
     }
 
@@ -322,6 +322,32 @@ namespace moon
 
                 Player.AddResources(vps);
             }
+        }
+    }
+
+    public class RoamingAction : TurnAction
+    {
+        protected override void Do(Player player)
+        {
+            Phase.PhaseStartEvent += async phase => { 
+                if(phase is ProductionPhase)
+                {
+                    Selection<Resource> selection = new(Game.Resources.all);
+                    Game.SelectionWindow.SetTitle("Gain one Extra Resource");
+
+                    await selection.Completion;
+
+                    player.AddResources(new List<Resource>() { selection.SelectedItem }); 
+                }
+            }; 
+        }
+    }
+
+    public class InnovativeAction : TurnAction
+    {
+        protected override void Do(Player player)
+        {
+            // There must be an event when the player starts a purchase that modifies the 
         }
     }
 }

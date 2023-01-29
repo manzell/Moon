@@ -36,16 +36,16 @@ namespace moon
         public virtual bool Can(Player player) { Debug.Log("Base Can"); Debug.Log(this); return true; }
     }
 
-    public class PlayCardAction : TurnAction
+    public abstract class PlayCardAction : TurnAction
     {
-        protected PlayCard card => Card as PlayCard; 
+        protected PlayCard card => Card as PlayCard;
 
-        public override bool Can(Player player)
-        {
-            bool canAfford = player.CanAfford(card.ResourceRequirements, card.FlagRequirements); 
-            bool preexistingActions = Game.CurrentTurn.Actions.OfType<PlayCardAction>().Any();
-            return canAfford && !preexistingActions; 
-        }
+        public override bool Can(Player player) => base.Can(player) && !Game.CurrentTurn.Actions.OfType<PlayCardAction>().Any();
+    }
+
+    public class BuildAction : PlayCardAction
+    {
+        public override bool Can(Player player) => base.Can(player) && player.CanAfford(card.ResourceRequirements, card.FlagRequirements);
 
         protected async override void Do(Player player)
         {
@@ -55,8 +55,9 @@ namespace moon
             player.AddCardToTableau(card);
 
             if (Card is ResourceCard resourceCard)
-                player.AddResources(await resourceCard.productionAction.Production()); 
+                player.AddResources(await resourceCard.productionAction.Production());
         }
+
     }
 
     public class AssimilateAction : PlayCardAction
@@ -115,6 +116,19 @@ namespace moon
         {
             Game.ReputationCards.Remove(Card as ReputationCard);
             player.AddReputationCard(Card as ReputationCard); 
+        }
+    }
+
+    public class FreeBuildAction : TurnAction
+    {
+        protected async override void Do(Player player)
+        {
+            Debug.Log($"Building {Card.name} in {player.name}'s Tableau");
+            player.RemoveCardsFromHand(new List<Card>() { Card as Card });
+            player.AddCardToTableau(Card as PlayCard);
+
+            if (Card is ResourceCard resourceCard)
+                player.AddResources(await resourceCard.productionAction.Production());
         }
     }
 }

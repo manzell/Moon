@@ -16,7 +16,7 @@ namespace moon
         [SerializeField] Resource resource;
 
         protected override int Calculate(Player player) => Game.CurrentEra.Turns.Where(turn => turn.Player == player)
-            .SelectMany(turn => turn.Actions.OfType<PlayCardAction>()).Sum(action => (action.Card as PlayCard).ResourceRequirements.Count(res => res == resource));
+            .SelectMany(turn => turn.Actions.OfType<BuildAction>()).Sum(action => (action.Card as PlayCard).ResourceRequirements.Count(res => res == resource));
     }
 
     [System.Serializable]

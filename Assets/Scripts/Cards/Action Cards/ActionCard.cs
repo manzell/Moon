@@ -43,15 +43,28 @@ namespace moon
 
     public class Printer : FlipAction
     {
-        protected override void Do(Player player)
+        protected override async void Do(Player player)
         {
+            if(player.Resources.Count(res => res == Game.Resources.metals) > 0)
+            {
+                Selection<Resource> selection = new(new List<Resource>() { Game.Resources.metals });
+                await selection.Completion;
 
-            // Prompt the player to pay 1 metal if they have it.
+                if (selection.SelectedItem != null)
+                {
+                    Selection<IConstructionCard> buildSelection = new(Game.Deck.OfType<IConstructionCard>());
+                    await buildSelection.Completion; 
 
-                // Then prompt the player to select a structure card from the Deck. 
-                // Then build the structure in their Tableau
-                // Then shuffle the Deck. 
-            throw new System.NotImplementedException();
+                    if(buildSelection.SelectedItem != null)
+                    {
+                        TurnAction action = new FreeBuildAction();
+                        action.SetCard(buildSelection.SelectedItem);
+                        action.Execute(player);
+
+                        Game.ShuffleDeck(); 
+                    }
+                }
+            }
         }
     }
 
@@ -59,15 +72,20 @@ namespace moon
     {
         protected override void Do(Player player)
         {
-            player.AddResources(player.Resources.Where(res => res == Game.Resources.water).Select(card => Game.Resources.vp)); 
+            player.AddResources(player.Resources.Where(res => res == Game.Resources.water).Select(res => Game.Resources.vp));                                 
         }
     }
 
     public class Charger : FlipAction
     {
-        protected override void Do(Player player)
+        protected override async void Do(Player player)
         {
-            // Create a Number Selector 
+            NumberSelection selection = new(0, player.Resources.Count(res => res == Game.Resources.energy));
+            Game.SelectionWindow.SetTitle($"Discard any amount of energy and score {Game.CurrentEra.Multiplier} VP for each");
+
+            await selection.Completion;
+
+            player.AddResources(Enumerable.Repeat(Game.Resources.vp, selection.SelectedItem * Game.CurrentEra.Multiplier)); 
         }
     }
 }

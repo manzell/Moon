@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Unity.Netcode;
-using TMPro;
-using Sirenix.Utilities;
 
 namespace moon
 {
@@ -139,9 +137,9 @@ namespace moon
         public void BuildStructure_ServerRpc(ulong playerID, int cardID)
         {
             Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
-            PlayCard card = player.Hand.OfType<PlayCard>().FirstOrDefault(card => card.ID == cardID);
+            PlayCard card = Card.GetById<PlayCard>(cardID);
             
-            TurnAction action = new PlayCardAction();
+            TurnAction action = new BuildAction();
             action.SetCard(card);
             action.Execute(player);
         }
@@ -201,6 +199,17 @@ namespace moon
             action.Execute(player);
         }
         #endregion
+
+        public static void ShuffleDeck() => FindObjectOfType<Game>().ShuffleDeck_ServerRpc(); 
+        [ServerRpc] public void ShuffleDeck_ServerRpc()
+        {
+            Deck = new(Deck.OrderBy(x => Random.value));
+            SetDeck_ClientRpc(Deck.Select(card => card.ID).ToArray()); 
+        }
+        [ClientRpc] void SetDeck_ClientRpc(int[] deckOrder)
+        {
+            Deck = new(deckOrder.Select(id => Card.GetById<PlayCard>(id))); 
+        }
 
         [ClientRpc] public void AddCardToDeck_ClientRpc(int cardID)
         {

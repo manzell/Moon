@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace moon
@@ -13,11 +14,13 @@ namespace moon
 
     public class FirstExpeditionAction : TurnAction
     {
-        protected override void Do(Player player)
+        protected override async void Do(Player player)
         {
-            // Select a card in hand to Discard
+            Selection<PlayCard> selection = new(player.Hand.OfType<PlayCard>());
+            await selection.Completion; 
 
-            player.AddCardsToHand(new List<Card>() { Game.Deck.Pop() }); 
+            if(selection.SelectedItem != null) 
+                player.AddCardsToHand(new List<Card>() { Game.Deck.Pop() }); 
         }
     }
 
@@ -37,12 +40,12 @@ namespace moon
 
     public class InfluentialExpedition : TurnAction
     {
-        protected override void Do(Player player)
+        protected override async void Do(Player player)
         {
-            // Select a Flag
-            Flag flag = new();
+            Selection<Flag> selection = new(Game.Flags.all); 
+            await selection.Completion;
 
-            Game.CurrentEra.Rewards[flag].Add(Game.Resources.vp);
+            Game.CurrentEra.Rewards[selection.SelectedItem].Add(Game.Resources.vp);
         }
     }
 
@@ -63,12 +66,13 @@ namespace moon
 
     public class ResourcefulExpedition : TurnAction
     {
-        protected override void Do(Player player)
+        protected override async void Do(Player player)
         {
-            // Select Resource
-            Resource resource = Game.Resources.wildcard;
+            Selection<Resource> selection = new(new List<Resource>() { Game.Resources.water, Game.Resources.energy, Game.Resources.metals, Game.Resources.organics });
 
-            player.AddResources(new List<Resource>() { resource });
+            await selection.Completion; 
+
+            player.AddResources(new List<Resource>() { selection.SelectedItem });
         }
     }
 }
