@@ -11,57 +11,65 @@ namespace moon
 {
     public class UI_Game : MonoBehaviour
     {
-        Game game; 
         [SerializeField] Player player;
         [SerializeField] Transform productionCards, flagCards, actionCards, victoryCards, opponentCards, hand, reputationCards, baseFlag, baseResource; 
         [SerializeField] UI_ConstructedCard constructedPrefab;
         [SerializeField] TextMeshProUGUI messageBox, baseName; 
         [SerializeField] GameObject endTurnButton, splash, baseArea;
+        [SerializeField] Transform startGameButton, startHostButton, startClientButton;
 
         private void Start()
         {
-            game = FindObjectOfType<Game>();
-            Game.StartGameEvent += OnGameStart;
-            Game.AddReputationCardToGameEvent += OnAddRepCard;
-            Turn.StartTurnEvent += OnTurnStart;
-            Turn.StartTurnEvent += turn => UpdateEndTurnButton(); 
-            TurnAction.ActionEvent += action => UpdateEndTurnButton(); 
+            Game.AddPlayerEvent += SetPlayer; 
         }
 
         public void SetPlayer(Player player)
         {
-            this.player = player;
+            if(player.IsOwner)
+            {
+                this.player = player;
 
-            Player.AddCardToTableauEvent += AddCardToTableau;
-            player.AddCardToHandEvent += OnGainCard;
-            player.RemoveCardFromHandEvent += OnLoseCard;
-            player.setBaseCardEvent += StyleBase; 
+                Game.StartGameEvent += OnGameStart;
+                Game.AddRepCardEvent += OnAddRepCard;
+                Turn.StartTurnEvent += OnTurnStart;
+                Turn.StartTurnEvent += turn => UpdateEndTurnButton();
+                Player.AddCardToTableauEvent += AddCardToTableau;
+                TurnAction.ActionEvent += action => UpdateEndTurnButton();
 
-            game.startClientButton.gameObject.SetActive(false);
-            game.startHostButton.gameObject.SetActive(false);
-            game.startGameButton.gameObject.SetActive(player.IsOwnedByServer);
-            splash.SetActive(false);
+                player.AddCardToHandEvent += OnGainCard;
+                player.RemoveCardFromHandEvent += OnLoseCard;
+                player.setBaseCardEvent += StyleBase;
 
-            foreach (Transform t in productionCards)
-                Destroy(t.gameObject);
-            foreach (Transform t in flagCards)
-                Destroy(t.gameObject);
-            foreach (Transform t in actionCards)
-                Destroy(t.gameObject);
-            foreach (Transform t in victoryCards)
-                Destroy(t.gameObject);
-            foreach (Transform t in opponentCards)
-                Destroy(t.gameObject);
-            foreach (Transform t in hand)
-                Destroy(t.gameObject);
+                splash.SetActive(false);
+                startClientButton.gameObject.SetActive(false);
+                startHostButton.gameObject.SetActive(false);
+                startGameButton.gameObject.SetActive(player.IsOwnedByServer);
 
+                foreach (Transform t in productionCards)
+                    Destroy(t.gameObject);
+                foreach (Transform t in flagCards)
+                    Destroy(t.gameObject);
+                foreach (Transform t in actionCards)
+                    Destroy(t.gameObject);
+                foreach (Transform t in victoryCards)
+                    Destroy(t.gameObject);
+                foreach (Transform t in opponentCards)
+                    Destroy(t.gameObject);
+                foreach (Transform t in hand)
+                    Destroy(t.gameObject);
+            }
         }
 
         void OnGameStart()
         {
+            FindObjectsOfType<TextMeshProUGUI>().ForEach(t => t.color = Color.yellow);
+
+            startGameButton.gameObject.SetActive(false);
             baseArea.SetActive(true);
             GetComponentsInChildren<UI_ResourceTrack>().ForEach(ui => ui.Setup());
             GetComponentInChildren<UI_Rover>().Setup();
+
+            SetMessage("OnGameStart() called");
         }
 
         void OnTurnStart(Turn turn)

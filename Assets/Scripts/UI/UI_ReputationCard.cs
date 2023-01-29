@@ -17,7 +17,7 @@ namespace moon
 
         private void Start()
         {
-            Game.ClaimReputationCardEvent += repCard => Style(); 
+            Game.ClaimRepCardEvent += repCard => Style(); 
         }
 
         public override void Style()

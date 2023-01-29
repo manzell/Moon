@@ -1823,8 +1823,8 @@ RectTransform:
   m_Children:
   - {fileID: 2122471643}
   - {fileID: 179891325}
-  - {fileID: 88071574}
   - {fileID: 1991247900}
+  - {fileID: 88071574}
   m_Father: {fileID: 1579710144}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2473,9 +2473,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d98e41b9cf4c5b14e9667e01293abd58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startHostButton: {fileID: 1991247900}
-  startClientButton: {fileID: 88071574}
-  startGameButton: {fileID: 179891325}
   gameSettings: {fileID: 11400000, guid: 1c16853aae029594b85eb76a18cce080, type: 2}
   graphics: {fileID: 11400000, guid: deeca8338166d95479d16bb23c7b7e00, type: 2}
   resources:
@@ -6049,6 +6046,9 @@ MonoBehaviour:
   endTurnButton: {fileID: 2122471642}
   splash: {fileID: 816575291}
   baseArea: {fileID: 6179255812092076691}
+  startGameButton: {fileID: 179891325}
+  startHostButton: {fileID: 1991247900}
+  startClientButton: {fileID: 88071574}
 --- !u!222 &8464891995170963817
 CanvasRenderer:
   m_ObjectHideFlags: 0

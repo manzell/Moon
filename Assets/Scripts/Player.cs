@@ -7,6 +7,7 @@ using Mono.Cecil;
 using Sirenix.Utilities;
 using System.Security.Cryptography;
 using Unity.VisualScripting;
+using TMPro;
 
 namespace moon
 {
@@ -73,7 +74,12 @@ namespace moon
         public void SetBase(BaseCard card) => SetBase_ClientRpc(card.ID); 
         [ClientRpc] void SetBase_ClientRpc(int baseID)
         {
+            Debug.Log($"SetBase_ClientRPC {name}"); 
             BaseCard = Card.GetById<BaseCard>(baseID);
+
+            FindObjectsOfType<TextMeshProUGUI>().ForEach(t => t.color = Color.red);
+            FindObjectOfType<UI_Game>().SetMessage($"Setting Base Card: {BaseCard.name}");
+
             setBaseCardEvent?.Invoke(); 
         }
 
@@ -82,7 +88,6 @@ namespace moon
         [ClientRpc] void ModifyCardsInTableau_ClientRpc(int cardID, bool add)
         {
             PlayCard card = Card.GetById<PlayCard>(cardID); 
-                //Game.Cards.OfType<PlayCard>().FirstOrDefault(card => card.ID == cardID);
 
             if (add)
             {

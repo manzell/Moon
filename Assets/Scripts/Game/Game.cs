@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Unity.Netcode;
+using TMPro;
+using Sirenix.Utilities;
 
 namespace moon
 {
     public class Game : NetworkBehaviour
     {
+        public static System.Action<Player> AddPlayerEvent; 
         public static System.Action StartGameEvent, EndGameEvent;
-        public static System.Action<ReputationCard> ClaimReputationCardEvent, AddReputationCardToGameEvent;
-
-        [SerializeField] public Transform startHostButton;
-        [SerializeField] public Transform startClientButton;
-        [SerializeField] public Transform startGameButton;
+        public static System.Action<ReputationCard> ClaimRepCardEvent, AddRepCardEvent;
 
         public static GameSettings GameSettings => FindObjectOfType<Game>().gameSettings;
         [SerializeField] GameSettings gameSettings;
@@ -33,12 +32,14 @@ namespace moon
         public static Player Player;
         public static List<Player> Players = new();
 
-        public static Queue<Era> Eras { get; private set; } // Player never needs to know. 
-        public static HashSet<Card> Cards { get; private set; } = new(); // This is a handy dandy reference. Should be a ClientRPC
-        public static Stack<PlayCard> Deck { get; private set; } = new(); // Player should not be able to access Deck. 
-        public static List<ReputationCard> ReputationCards { get; private set; } = new(); // The player needs to know what rep cards are available. 
-        public static List<PlayCard> Discards { get; private set; } = new(); // Player should not be able to access Discards. 
-        public static Dictionary<Flag, List<Resource>> Rewards { get; private set; } = new(); // Player 
+        public static Queue<Era> Eras { get; private set; } 
+        public static HashSet<Card> Cards { get; private set; } = new(); 
+        public static Stack<PlayCard> Deck { get; private set; } = new(); 
+        public static List<ReputationCard> ReputationCards { get; private set; } = new();
+        public static List<ExpeditionCard> ExpeditionCards { get; private set; } = new();
+        public static List<BaseCard> BaseCards { get; private set; } = new();
+        public static List<PlayCard> Discards { get; private set; } = new(); 
+        public static Dictionary<Flag, List<Resource>> Rewards { get; private set; } = new(); 
 
         public static Era CurrentEra;
         public static Phase CurrentPhase;
@@ -50,6 +51,11 @@ namespace moon
             Graphics = graphics;
             Flags = flags;
             Resources = resources;
+            Eras = new(GameSettings.Eras);
+            Cards.Add(gameSettings.FirstPlayerExpedition);
+            Cards.UnionWith(gameSettings.ExpeditionCards);
+            Cards.UnionWith(gameSettings.Bases);
+            Cards.UnionWith(gameSettings.Eras.SelectMany(era => era.Deck)); 
         }
 
         public static void AddPlayer(Player player)
@@ -62,10 +68,9 @@ namespace moon
                 Debug.Log($"{player.name} Added to the Game!");
 
                 if (player.IsOwner)
-                {
-                    FindObjectOfType<UI_Game>().SetPlayer(player); 
                     Player = player;
-                }
+
+                AddPlayerEvent?.Invoke(player);  
             }
         }
 
@@ -73,45 +78,45 @@ namespace moon
 
         [ServerRpc] public void StartGame_ServerRpc()
         {
-            Stack<ExpeditionCard> expeditionCards = new(gameSettings.ExpeditionCards.OrderBy(x => Random.value).Take(Players.Count));
-            Stack<BaseCard> baseCards = new(gameSettings.Bases.OrderBy(x => Random.value).Take(Players.Count));
-
-            Cards.Add(gameSettings.FirstPlayerExpedition);
-            Cards.UnionWith(gameSettings.ExpeditionCards);
-            Cards.UnionWith(gameSettings.Bases);
-
-            if(Players.Count > 1) 
-                Players[0].AddCardsToHand(new List<ExpeditionCard>() { gameSettings.FirstPlayerExpedition });
-
-            for (int i = 0; i < Players.Count; i++)
-                if (Players[i].Hand.OfType<ExpeditionCard>().Count() == 0)
-                    Players[i].AddCardsToHand(new List<ExpeditionCard>() { expeditionCards.Pop() });
-
-            Players.ForEach(player => {
-                player.AddResources(gameSettings.StartingResources);
-                player.SetBase(baseCards.Pop()); 
-            }); 
-
-            StartGame_ClientRpc(); 
-        }
-
-        [ClientRpc] void StartGame_ClientRpc()
-        {
-            Eras = new(GameSettings.Eras);
-            Cards.UnionWith(Eras.SelectMany(era => era.Deck));
-
             if (Players.Count > 0 && Players.Count < 6)
             {
-                startGameButton.gameObject.SetActive(false);
-                Debug.Log($"Starting {Eras.Count}-Era Game for {Players.Count} players");
-                StartGameEvent?.Invoke();
+                AddBaseCards_ClientRpc(gameSettings.Bases.Select(card => card.ID).OrderBy(x => Random.value).ToArray());
+                AddExpeditionCards_ClientRpc(gameSettings.ExpeditionCards.Select(card => card.ID).OrderBy(x => Random.value).ToArray());
 
-                Eras.Dequeue().StartEra();
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    Players[i].AddResources(gameSettings.StartingResources);
+                    Players[i].SetBase(BaseCards[i]);                
+
+                    if (i == 0 && Players.Count > 1)
+                    {
+                        Debug.Log($"{Players[i].name} Expedition Card = {gameSettings.FirstPlayerExpedition.name}");
+                        Players[i].AddCardsToHand(new List<ExpeditionCard>() { gameSettings.FirstPlayerExpedition });
+                    }
+                    else
+                    {
+                        Debug.Log($"{Players[i].name} Expedition Card = {ExpeditionCards[i].name}");
+                        Players[i].AddCardsToHand(new List<ExpeditionCard>() { ExpeditionCards[i] });
+                    }
+                }
+
+                StartGame_ClientRpc();
             }
             else
             {
                 Debug.LogWarning("Must have between 1 and 5 players connected");
             }
+        }
+
+        [ClientRpc] void StartGame_ClientRpc()
+        {
+            Debug.Log($"Starting {Eras.Count}-Era Game for {Players.Count} players");
+            Debug.Log($"{BaseCards.Count} Base Cards; {ExpeditionCards.Count} Expedition Cards");
+
+            StartGameEvent?.Invoke();
+
+            FindObjectOfType<UI_Game>().SetMessage($"Eras - {Eras.Count}"); 
+            Eras.Dequeue().StartEra();
         }
 
         [ServerRpc(RequireOwnership = false)] public void EndTurn_ServerRpc()
@@ -223,43 +228,37 @@ namespace moon
         {
             ModifyReputationCard_ClientRpc(cards.Select(card => card.ID).ToArray(), true); 
         }
-
         [ClientRpc] public void ModifyReputationCard_ClientRpc(int[] cardIDs, bool add)
         {
             foreach(int cardID in cardIDs)
             {
                 ReputationCard card = Card.GetById<ReputationCard>(cardID); 
-                    //Cards.OfType<ReputationCard>().FirstOrDefault(card => card.ID == cardID);
 
                 if (add)
                 {
                     ReputationCards.Add(card);
-                    AddReputationCardToGameEvent?.Invoke(card);
+                    AddRepCardEvent?.Invoke(card);
                 }
                 else
                 {
                     ReputationCards.Remove(card);
-                    ClaimReputationCardEvent?.Invoke(card);
+                    ClaimRepCardEvent?.Invoke(card);
                 }
             }
         }
-
-        public void LogServer(string message)
+        
+        public void AddExpeditionCards(IEnumerable<ExpeditionCard> cards) => AddExpeditionCards_ClientRpc(cards.Select(card => card.ID).ToArray());
+        [ClientRpc] public void AddExpeditionCards_ClientRpc(int[] cardIDs)
         {
-            FindObjectOfType<UI_Game>().SetMessage($"LogServer({message}) IsHost: {IsHost} IsServer: {IsServer} IsClient: {IsClient} IsOwner: {IsOwner} IsOwnedByServer: {IsOwnedByServer}");
-            Log_ServerRpc(message);
+            Debug.Log($"Adding {cardIDs.Length} Expedition Cards");
+            ExpeditionCards.AddRange(cardIDs.Select(id => Card.GetById<ExpeditionCard>(id)));
         }
 
-        [ServerRpc(RequireOwnership = false)] void Log_ServerRpc(string message)
+        public void AddBaseCards(IEnumerable<BaseCard> cards) => AddBaseCards_ClientRpc(cards.Select(card => card.ID).ToArray());
+        [ClientRpc] public void AddBaseCards_ClientRpc(int[] cardIDs)
         {
-            FindObjectOfType<UI_Game>().SetMessage($"LogServerRpc({message})");
-            Log_ClientRpc(message);
-        }
-
-        [ClientRpc] void Log_ClientRpc(string message)
-        {
-            FindObjectOfType<UI_Game>().SetMessage($"LogClientRpc({message})");
-            Debug.Log("##LOG## |" + message);
+            Debug.Log($"Adding {cardIDs.Length} Base Cards");
+            BaseCards.AddRange(cardIDs.Select(id => Card.GetById<BaseCard>(id))); 
         }
     }
 

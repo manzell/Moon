@@ -1,6 +1,8 @@
+using Sirenix.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -37,7 +39,7 @@ namespace moon
 
             if (nextPlayer != null)
             {
-                Debug.Log($"End Turn [#{Game.CurrentRound.Turns.Count()} - {Game.CurrentTurn.Player}");
+                Debug.Log($"End Turn [#{Game.CurrentRound.Turns.Count()} - {Game.CurrentTurn.Player.name}");
                 Game.CurrentTurn = new Turn(nextPlayer);
                 Game.CurrentTurn.StartTurn(); // This does not trigger StartTurn() on the client I think this is a server-only thread. 
             }
