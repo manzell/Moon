@@ -54,13 +54,16 @@ namespace moon
         protected override void Do(Player player)
         {
             ActionEvent += Reward;
-            Turn.EndTurnEvent += turn => ActionEvent -= Reward; 
-        }
+            Turn.EndTurnEvent += turn => ActionEvent -= Reward;
 
-        void Reward(TurnAction turn)
-        {
-            turn.Player.AddResources(new List<Resource>() { Game.Resources.vp });
-            ActionEvent -= Reward; 
+            void Reward(TurnAction turn)
+            {
+                if (turn is RoverAction && turn.Player == player)
+                {
+                    turn.Player.AddResources(new List<Resource>() { Game.Resources.vp });
+                    ActionEvent -= Reward;
+                }
+            }
         }
     }
 

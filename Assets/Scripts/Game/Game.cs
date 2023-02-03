@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Unity.Netcode;
+using Sirenix.Utilities;
+using TMPro;
 
 namespace moon
 {
@@ -58,7 +60,7 @@ namespace moon
 
         public static void AddPlayer(Player player)
         {
-            if (Players.Count < 5)
+            if (Players.Count < GameSettings.MaxPlayers)
             {
                 Players.Add(player);
                 player.name = $"Player {Players.Count}";
@@ -76,15 +78,15 @@ namespace moon
 
         [ServerRpc] public void StartGame_ServerRpc()
         {
-            if (Players.Count > 0 && Players.Count < 6)
+            if (Players.Count > 0)
             {
-                AddBaseCards_ClientRpc(gameSettings.Bases.Select(card => card.ID).OrderBy(x => Random.value).ToArray());
-                AddExpeditionCards_ClientRpc(gameSettings.ExpeditionCards.Select(card => card.ID).OrderBy(x => Random.value).ToArray());
+                BaseCards.AddRange(gameSettings.Bases.OrderBy(x => Random.value));
+                ExpeditionCards.AddRange(gameSettings.ExpeditionCards.OrderBy(x => Random.value));
 
                 for (int i = 0; i < Players.Count; i++)
                 {
                     Players[i].AddResources(gameSettings.StartingResources);
-                    Players[i].SetBase(BaseCards[i]);                
+                    Players[i].SetBaseCard(BaseCards[i]);                
 
                     if (i == 0 && Players.Count > 1)
                         Players[i].AddCardsToHand(new List<ExpeditionCard>() { gameSettings.FirstPlayerExpedition });
@@ -92,33 +94,28 @@ namespace moon
                         Players[i].AddCardsToHand(new List<ExpeditionCard>() { ExpeditionCards[i] });
                 }
 
-                StartGame_ClientRpc();
+                TriggerStartGameEvent_ClientRpc();
+
+                CurrentEra = Eras.Dequeue();
+                CurrentEra.StartEra();
             }
             else
             {
-                Debug.LogWarning("Must have between 1 and 5 players connected");
+                Debug.LogWarning($"Must have between 1 and {gameSettings.MaxPlayers} players connected");
             }
         }
-
-        [ClientRpc] void StartGame_ClientRpc()
+        [ClientRpc] void TriggerStartGameEvent_ClientRpc()
         {
+            FindObjectOfType<UI_Game>().SetMessage($"Trigger Start Game - {Player.name}"); 
             StartGameEvent?.Invoke();
-            Eras.Dequeue().StartEra();
         }
 
-        [ServerRpc(RequireOwnership = false)] public void EndTurn_ServerRpc()
-        {
-            if (CurrentTurn.CanEndTurn)
-                EndTurn_ClientRpc(); 
-        }
-        [ClientRpc] void EndTurn_ClientRpc()
-        {
-            CurrentTurn.EndTurn();
-        }
+        public void EndTurnButton() => EndTurnButton_ServerRpc();
+        [ServerRpc] void EndTurnButton_ServerRpc() => CurrentTurn.NextTurn();
 
-        public static void EndGame()
+        public static void EndGame() // Move most of this to clientside
         {
-            EndGameEvent?.Invoke();
+            FindObjectOfType<Game>().TriggerEndGameEvent_ClientRpc();
 
             int maxVP = Players.Max(player => player.Resources.Count(resource => resource == Resources.vp));
 
@@ -129,6 +126,7 @@ namespace moon
             else
                 Debug.Log($"{string.Join(" & ", winningPlayers.Select(player => player.name))} tied for First Place");
         }
+        [ClientRpc] void TriggerEndGameEvent_ClientRpc() => EndGameEvent?.Invoke();
         #endregion
 
         #region Basic Player Actions
@@ -200,62 +198,49 @@ namespace moon
         }
         #endregion
 
-        public static void ShuffleDeck() => FindObjectOfType<Game>().ShuffleDeck_ServerRpc(); 
-        [ServerRpc] public void ShuffleDeck_ServerRpc()
+        public static void ShuffleDeck() => Deck = new(Deck.OrderBy(x => Random.value));
+
+        public static void AddCardsToDeck(IEnumerable<PlayCard> cards)
         {
-            Deck = new(Deck.OrderBy(x => Random.value));
-            SetDeck_ClientRpc(Deck.Select(card => card.ID).ToArray()); 
-        }
-        [ClientRpc] void SetDeck_ClientRpc(int[] deckOrder)
-        {
-            Deck = new(deckOrder.Select(id => Card.GetById<PlayCard>(id))); 
+            cards.ForEach(card => Deck.Push(card)); 
         }
 
-        [ClientRpc] public void AddCardToDeck_ClientRpc(int cardID)
+        public static void AddReputationCards(IEnumerable<ReputationCard> cards)
         {
-            Card card = Card.GetById(cardID);
+            cards.ForEach(card => {
+                ReputationCards.Add(card);
+                FindObjectOfType<Game>().TriggerAddRepCardEvent_ClientRpc(card.ID);
+            });
+        }
+        [ClientRpc] void TriggerAddRepCardEvent_ClientRpc(int id) => AddRepCardEvent?.Invoke(Card.GetById<ReputationCard>(id));
 
-            if (card != null)
-                if (card is PlayCard playCard)
-                    Deck.Push(playCard);
+        [ClientRpc] public void TriggerStartEraEvent_ClientRpc()
+        {
+            Debug.Log($"Starting {CurrentEra.name}");
+            Era.EraStartEvent?.Invoke();
         }
+        [ClientRpc] public void TriggerEndEraEvent_ClientRpc() => Era.EraEndEvent?.Invoke();
 
-        public void AddReputationCards(IEnumerable<ReputationCard> cards)
-        {
-            ModifyReputationCard_ClientRpc(cards.Select(card => card.ID).ToArray(), true); 
-        }
-        [ClientRpc] public void ModifyReputationCard_ClientRpc(int[] cardIDs, bool add)
-        {
-            foreach(int cardID in cardIDs)
-            {
-                ReputationCard card = Card.GetById<ReputationCard>(cardID); 
+        [ClientRpc] public void TriggerStartPhaseEvent_ClientRpc() => Phase.PhaseStartEvent?.Invoke();
+        [ClientRpc] public void TriggerEndPhaseEvent_ClientRpc() => Phase.PhaseEndEvent?.Invoke();
 
-                if (add)
-                {
-                    ReputationCards.Add(card);
-                    AddRepCardEvent?.Invoke(card);
-                }
-                else
-                {
-                    ReputationCards.Remove(card);
-                    ClaimRepCardEvent?.Invoke(card);
-                }
-            }
-        }
-        
-        public void AddExpeditionCards(IEnumerable<ExpeditionCard> cards) => AddExpeditionCards_ClientRpc(cards.Select(card => card.ID).ToArray());
-        [ClientRpc] public void AddExpeditionCards_ClientRpc(int[] cardIDs)
+        [ClientRpc] public void TriggerStartRoundEvent_ClientRpc()
         {
-            Debug.Log($"Adding {cardIDs.Length} Expedition Cards");
-            ExpeditionCards.AddRange(cardIDs.Select(id => Card.GetById<ExpeditionCard>(id)));
+            Debug.Log("Starting Round");
+            Round.StartRoundEvent?.Invoke();
         }
+        [ClientRpc] public void TriggerEndRoundEvent_ClientRpc() => Round.EndRoundEvent?.Invoke();
 
-        public void AddBaseCards(IEnumerable<BaseCard> cards) => AddBaseCards_ClientRpc(cards.Select(card => card.ID).ToArray());
-        [ClientRpc] public void AddBaseCards_ClientRpc(int[] cardIDs)
+        [ClientRpc] public void TriggerStartTurnEvent_ClientRpc(ulong playerID)
         {
-            Debug.Log($"Adding {cardIDs.Length} Base Cards");
-            BaseCards.AddRange(cardIDs.Select(id => Card.GetById<BaseCard>(id))); 
+            Player player = Players.Where(player => player.OwnerClientId == playerID).FirstOrDefault();
+
+            FindObjectOfType<UI_Game>().SetMessage($"StartTurn_ClientRpc({playerID}: {player.name})");
+
+            Debug.Log($"Starting {player.name} turn");
+            Turn.StartTurnEvent?.Invoke(player);
         }
+        [ClientRpc] public void TriggerEndTurnEvent_ClientRpc(ulong playerID) => Turn.EndTurnEvent?.Invoke(Players.Where(player => player.OwnerClientId == playerID).FirstOrDefault());
     }
 
     [System.Serializable]

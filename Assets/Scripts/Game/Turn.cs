@@ -1,52 +1,36 @@
-using Sirenix.Utilities;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using UnityEngine;
-using UnityEngine.Playables;
 
 namespace moon
 {
     public class Turn
     {
-        public static System.Action<Turn> StartTurnEvent, EndTurnEvent;
+        public static System.Action<Player> StartTurnEvent, EndTurnEvent;
 
         public Player Player { get; private set; }
         public List<TurnAction> Actions { get; private set; } = new(); 
 
         public bool CanEndTurn => Actions.OfType<PlayCardAction>().Count() > 0; 
-        public Turn(Player player) => Player = player;
 
-        public void StartTurn()
+        public Turn(Player player)
         {
-            Debug.Log($"Starting {Player.name} turn");
+            Player = player;
             Game.CurrentTurn = this;
-            Game.CurrentEra.Turns.Add(this); 
-            StartTurnEvent?.Invoke(this);
+            Game.CurrentEra.Turns.Add(this);
+            GameObject.FindObjectOfType<Game>().TriggerStartTurnEvent_ClientRpc(player.OwnerClientId); 
         }
 
-        public void EndTurn()
+        public void NextTurn()
         {
-            EndTurnEvent?.Invoke(this);
-            NextTurn(this);
-        }
-
-        void NextTurn(Turn previousTurn)
-        {
+            GameObject.FindObjectOfType<Game>().TriggerEndTurnEvent_ClientRpc(Player.OwnerClientId);
             Player nextPlayer = Game.Players.Where(player => Game.Players.IndexOf(player) > Game.Players.IndexOf(Player) && 
                 player.Hand.OfType<PlayCard>().Count() > 0).FirstOrDefault();
 
             if (nextPlayer != null)
-            {
-                Debug.Log($"End Turn [#{Game.CurrentRound.Turns.Count()} - {Game.CurrentTurn.Player.name}");
-                Game.CurrentTurn = new Turn(nextPlayer);
-                Game.CurrentTurn.StartTurn(); 
-            }
+                new Turn(nextPlayer);
             else
-            {
-                Game.CurrentRound.EndRound();
-            }
+                Game.CurrentRound.NextRound();
         }
     }
 }

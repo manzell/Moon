@@ -781,8 +781,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278244095
-  m_fontColor: {r: 1, g: 0.82410884, b: 0, a: 1}
+    rgba: 4293984511
+  m_fontColor: {r: 1, g: 0, b: 0.94415855, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3398,7 +3398,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1502704791}
         m_TargetAssemblyTypeName: moon.Game, Assembly-CSharp
-        m_MethodName: EndTurn_ServerRpc
+        m_MethodName: EndTurnButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

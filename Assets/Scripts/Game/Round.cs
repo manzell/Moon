@@ -1,45 +1,42 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace moon
 {
     public class Round
     {
-        public static System.Action<Round> StartRoundEvent, EndRoundEvent;
+        public static System.Action StartRoundEvent, EndRoundEvent;
         public List<Turn> Turns { get; private set; } = new();
 
-        public void StartRound()
+        public Round()
         {
-            Debug.Log("Starting Round");
             Game.CurrentRound = this;
-            StartRoundEvent?.Invoke(this);
+            GameObject.FindObjectOfType<Game>().TriggerStartRoundEvent_ClientRpc();
 
-            Turn turn = new Turn(Game.Players.First());
-            Turns.Add(turn);
-            turn.StartTurn(); 
+            Turns.Add(new Turn(Game.Players.First()));
         }
 
-        public void NextRound(Round previousRound)
+        public void NextRound()
         {
+            GameObject.FindObjectOfType<Game>().TriggerEndRoundEvent_ClientRpc(); 
+
             if (Game.Players.Any(player => player.Hand.OfType<PlayCard>().Any()))
-                new Round().StartRound();
+            {
+                if (Game.Players.Count() > 1)
+                    PassCardsRight();
+                if (Game.Players.Count() > 2)
+                    ShiftTurnOrder();
+
+                new Round();
+            } 
             else
-                Game.CurrentPhase.EndPhase();
+                Game.CurrentPhase.NextPhase();
         }
 
-        public void EndRound()
-        {
-            PassCards();
-            if(Game.Players.Count() > 2)
-                ShiftTurnOrder();
-            
-            EndRoundEvent?.Invoke(this);
-            NextRound(this);
-        }
-
-        public void PassCards()
+        public void PassCardsRight() 
         {
             if(Game.Players.Count > 1)
             {
@@ -56,7 +53,7 @@ namespace moon
             }
         }
 
-        public void ShiftTurnOrder()
+        public void ShiftTurnOrder() // Server Side
         {
                 Player firstPlayer = Game.Players.First();
                 Game.Players.Remove(firstPlayer);

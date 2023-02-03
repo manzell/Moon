@@ -33,7 +33,7 @@ namespace moon
         }
 
         protected abstract void Do(Player player);
-        public virtual bool Can(Player player) { Debug.Log("Base Can"); Debug.Log(this); return true; }
+        public virtual bool Can(Player player) => true;
     }
 
     public abstract class PlayCardAction : TurnAction
@@ -115,7 +115,7 @@ namespace moon
         protected override void Do(Player player)
         {
             Game.ReputationCards.Remove(Card as ReputationCard);
-            player.AddReputationCard(Card as ReputationCard); 
+            player.ClaimReputationCard(Card as ReputationCard); 
         }
     }
 

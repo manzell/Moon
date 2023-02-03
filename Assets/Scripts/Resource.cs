@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace moon
@@ -14,6 +15,8 @@ namespace moon
         [SerializeField] Sprite icon;
         [SerializeField] Color color;
         [SerializeField] GameObject prefab;
-        [SerializeField] int id; 
+        [SerializeField] int id;
+
+        public static Resource GetById(int id) => Game.Resources.all.FirstOrDefault(res => res.ID == id); 
     }
 }

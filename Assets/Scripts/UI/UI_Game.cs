@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Sirenix.Utilities;
 using TMPro;
-using Unity.Netcode;
 using UnityEngine.UI;
 
 namespace moon
@@ -31,8 +28,9 @@ namespace moon
 
                 Game.StartGameEvent += OnGameStart;
                 Game.AddRepCardEvent += OnAddRepCard;
+                
                 Turn.StartTurnEvent += OnTurnStart;
-                Turn.StartTurnEvent += turn => UpdateEndTurnButton();
+                Turn.StartTurnEvent += player => UpdateEndTurnButton();
                 Player.AddCardToTableauEvent += AddCardToTableau;
                 TurnAction.ActionEvent += action => UpdateEndTurnButton();
 
@@ -62,24 +60,20 @@ namespace moon
 
         void OnGameStart()
         {
-            FindObjectsOfType<TextMeshProUGUI>().ForEach(t => t.color = Color.yellow);
-
             startGameButton.gameObject.SetActive(false);
             baseArea.SetActive(true);
             GetComponentsInChildren<UI_ResourceTrack>().ForEach(ui => ui.Setup());
             GetComponentInChildren<UI_Rover>().Setup();
-
-            SetMessage("OnGameStart() called");
         }
 
-        void OnTurnStart(Turn turn)
+        void OnTurnStart(Player player)
         {
-            endTurnButton.SetActive(turn.Player == player);
+            endTurnButton.SetActive(Game.Player == player);
 
-            if (turn.Player == player)
-                SetMessage($"Your Turn [#{Game.CurrentRound.Turns.Count}]");
+            if (Game.Player == player)
+                SetMessage($"Your Turn");
             else
-                SetMessage($"{turn.Player.name}'s Turn [#{Game.CurrentRound.Turns.Count}]");
+                SetMessage($"{player.name}'s Turn");
         }
 
         void UpdateEndTurnButton()
@@ -117,9 +111,9 @@ namespace moon
             }
         }
 
-        public void SetMessage(string message)
+        public void SetMessage(object message)
         {
-            messageBox.text = message; 
+            messageBox.text = message.ToString(); 
         }
 
         void OnAddRepCard(ReputationCard card)
@@ -129,12 +123,12 @@ namespace moon
             ui.Setup(card); 
         }
 
-        void StyleBase()
+        void StyleBase(BaseCard card)
         {
-            baseName.text = Game.Player.BaseCard.name;
+            baseName.text = card.name;
 
-            GameObject r = Instantiate(Game.Player.BaseCard.ProductionResource.Prefab, baseResource);
-            GameObject f = Instantiate(Game.Player.BaseCard.Flag.Prefab, baseFlag);
+            GameObject r = Instantiate(card.ProductionResource.Prefab, baseResource);
+            GameObject f = Instantiate(card.Flag.Prefab, baseFlag);
         }
     }
 }

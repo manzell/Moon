@@ -12,6 +12,9 @@ namespace moon
         [field: SerializeField] public List<BaseCard> Bases; 
         [field: SerializeField] public List<Resource> StartingResources;
         [field: SerializeField] public ExpeditionCard FirstPlayerExpedition; 
-        [field: SerializeField] public List<ExpeditionCard> ExpeditionCards; 
+        [field: SerializeField] public List<ExpeditionCard> ExpeditionCards;
+
+        [field: SerializeField] public int MaxPlayers = 5; 
+        [field: SerializeField] public int ReputationCardsPerEra = 3;
     }
 }

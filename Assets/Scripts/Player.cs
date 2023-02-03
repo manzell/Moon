@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Unity.Netcode;
-using Mono.Cecil;
 using Sirenix.Utilities;
-using System.Security.Cryptography;
-using Unity.VisualScripting;
-using TMPro;
 
 namespace moon
 {
@@ -16,12 +12,11 @@ namespace moon
         public static Player GetById(ulong playerID) => Game.Players.FirstOrDefault(player => player.OwnerClientId == playerID);
 
         public static System.Action<Player, PlayCard> AddCardToTableauEvent, RemoveCardFromTableauEvent;
-        public System.Action setBaseCardEvent; 
+        public System.Action<BaseCard> setBaseCardEvent; 
         public System.Action<IEnumerable<Resource>> AddResourcesEvent, LoseResourcesEvent;
         public System.Action<Card> AddCardToHandEvent, RemoveCardFromHandEvent;
         public System.Action<ReputationCard> ClaimReputationCardEvent;
         public System.Action<IConstructionCard> DeployRoverEvent, RecallRoverEvent;
-        public System.Action<ResourceCard> ProduceEvent; 
         
         public List<Resource> Resources { get; private set; } = new();
         public List<PlayCard> Tableau { get; private set; } = new();
@@ -41,102 +36,85 @@ namespace moon
             Game.AddPlayer(this);
         }
 
-        public void AddResources(IEnumerable<Resource> resources) => ModifyResource_ClientRpc(resources.Select(resource => resource.ID).ToArray(), true);
-        public void RemoveResources(IEnumerable<Resource> resources) => ModifyResource_ClientRpc(resources.Select(resource => resource.ID).ToArray(), false);
-        [ClientRpc] void ModifyResource_ClientRpc(int[] ResourceIDs, bool add)
+        public void AddResources(IEnumerable<Resource> resources)
         {
-            foreach (int id in ResourceIDs.Distinct())
+            foreach (Resource resource in resources.Distinct())
             {
-                Resource resource = Game.Resources.all.FirstOrDefault(resource => resource.ID == id);
-                IEnumerable<Resource> resources = ResourceIDs.Where(rid => rid == id).Select(rid => resource);
+                IEnumerable<Resource> thisResource = Resources.Where(res => res == resource);
 
-                if(add)
-                {
-                    Resources.AddRange(resources);
-                    AddResourcesEvent?.Invoke(resources);
-                }
-                else
-                {
-                    IEnumerable<Resource> resourcesToRemove = Resources.Where(resource => resource == Game.Resources.wildcard || resource.ID == id)
-                        .OrderByDescending(resource => resource != Game.Resources.wildcard).Take(resources.Count());
+                Resources.AddRange(resources);
+                TriggerAddResourcesEvent_ClientRpc(resources.Select(res => res.ID).ToArray());
+            }
+        }        
+        public void RemoveResources(IEnumerable<Resource> resources)
+        {
+            foreach(Resource resource in resources.Distinct())
+            {
+                IEnumerable<Resource> resourcesToRemove = Resources.Where(res => res == resource || res == Game.Resources.wildcard)
+                                .OrderByDescending(resource => resource != Game.Resources.wildcard)
+                                .Take(resources.Count(r => r == resource));
 
-                    resourcesToRemove.ForEach(resource => Resources.Remove(resource)); 
-                    LoseResourcesEvent?.Invoke(resourcesToRemove);
-                }
+                resourcesToRemove.ForEach(resource => Resources.Remove(resource));
+                TriggerRemoveResourcesEvent_ClientRpc(resourcesToRemove.Select(res => res.ID).ToArray());
             }
         }
+        [ClientRpc] void TriggerAddResourcesEvent_ClientRpc(int[] resourceIDs) => AddResourcesEvent?.Invoke(resourceIDs.Select(id => Resource.GetById(id)));
+        [ClientRpc] void TriggerRemoveResourcesEvent_ClientRpc(int[] resourceIDs) => AddResourcesEvent?.Invoke(resourceIDs.Select(id => Resource.GetById(id)));
 
-        public void SetBase(BaseCard card) => SetBase_ClientRpc(card.ID); 
-        [ClientRpc] void SetBase_ClientRpc(int baseID)
+        public void SetBaseCard(BaseCard card)
         {
-            BaseCard = Card.GetById<BaseCard>(baseID);
-            setBaseCardEvent?.Invoke(); 
+            BaseCard = card;
+            TriggerSetBaseCardEvent_ClientRpc(card.ID); 
         }
+        [ClientRpc] void TriggerSetBaseCardEvent_ClientRpc(int cardID) => setBaseCardEvent?.Invoke(Card.GetById<BaseCard>(cardID)); 
 
-        public void AddCardToTableau(PlayCard card) => ModifyCardsInTableau_ClientRpc(card.ID, true);
-        public void RemoveCardFromTableau(PlayCard card) => ModifyCardsInTableau_ClientRpc(card.ID, false);
-        [ClientRpc] void ModifyCardsInTableau_ClientRpc(int cardID, bool add)
+        public void AddCardToTableau(PlayCard card)
         {
-            PlayCard card = Card.GetById<PlayCard>(cardID); 
-
-            if (add)
-            {
-                Tableau.Add(card);
-                AddCardToTableauEvent?.Invoke(this, card);
-            }
-            else
-            {
-                Tableau.Remove(card);
-                RemoveCardFromTableauEvent?.Invoke(this, card);
-            }
+            Tableau.Add(card);
+            TriggerAddCardToTableauEvent_ClientRpc(card.ID);
         }
-       
-        public void AddCardsToHand(IEnumerable<Card> cards) => ModifyCardsInHand_ClientRpc(cards.Select(card => card.ID).ToArray(), true);
-        public void RemoveCardsFromHand(IEnumerable<Card> cards) => ModifyCardsInHand_ClientRpc(cards.Select(card => card.ID).ToArray(), false);
-        [ClientRpc] void ModifyCardsInHand_ClientRpc(int[] cardIDs, bool add)
+        public void RemoveCardFromTableau(PlayCard card)
         {
-            foreach (int id in cardIDs)
-            {
-                Card card = Card.GetById(id);
-
-                if (add)
-                {
-                    Hand.Add(card);
-                    AddCardToHandEvent?.Invoke(card);
-                }
-                else
-                {
-                    Hand.Remove(card);
-                    RemoveCardFromHandEvent?.Invoke(card);
-                }
-            }
+            if(Tableau.Remove(card))
+                TriggerRemoveCardFromTableauEvent_ClientRpc(card.ID);
         }
+        [ClientRpc] void TriggerAddCardToTableauEvent_ClientRpc(int cardID) => AddCardToTableauEvent?.Invoke(this, Card.GetById<PlayCard>(cardID));
+        [ClientRpc] void TriggerRemoveCardFromTableauEvent_ClientRpc(int cardID) => RemoveCardFromTableauEvent?.Invoke(this, Card.GetById<PlayCard>(cardID));
 
-        public void AddReputationCard(ReputationCard card) => AddReputationCard_ClientRpc(card.ID); 
-        [ClientRpc] void AddReputationCard_ClientRpc(int cardID)
+        public void AddCardsToHand(IEnumerable<Card> cards) => cards.ForEach(card => AddCardToHand(card)); 
+        public void AddCardToHand(Card card)
         {
-            ReputationCard card = Card.GetById<ReputationCard>(cardID);
+            Hand.Add(card);
+            TriggerAddCardToHandEvent_ClientRpc(card.ID);
+        }
+        public void RemoveCardsFromHand(IEnumerable<Card> cards) => cards.ForEach(card => RemoveCardFromHand(card));
+        public void RemoveCardFromHand(Card card)
+        {
+            if(Hand.Remove(card))
+                TriggerRemoveCardFromHandEvent_ClientRpc(card.ID);
+        }
+        [ClientRpc] void TriggerAddCardToHandEvent_ClientRpc(int cardId) => AddCardToHandEvent?.Invoke(Card.GetById(cardId));
+        [ClientRpc] void TriggerRemoveCardFromHandEvent_ClientRpc(int cardId) => AddCardToHandEvent?.Invoke(Card.GetById(cardId));
+
+        public void ClaimReputationCard(ReputationCard card)
+        {
             ReputationCards.Add(card);
-            ClaimReputationCardEvent?.Invoke(card);
+            TriggerClaimRepCardEvent_ClientRpc(card.ID);
         }
+        [ClientRpc] void TriggerClaimRepCardEvent_ClientRpc(int cardID) => ClaimReputationCardEvent?.Invoke(Card.GetById<ReputationCard>(cardID));
 
-        public void DeployRover(IConstructionCard card) => ModifyRoverLocation_ClientRpc(card.ID, true);
-        public void RecallRover(IConstructionCard card) => ModifyRoverLocation_ClientRpc(card.ID, false);
-        [ClientRpc] void ModifyRoverLocation_ClientRpc(int cardID, bool add)
+        public void DeployRover(IConstructionCard card)
         {
-            IConstructionCard card = Card.GetById<IConstructionCard>(cardID);
-
-            if (add)
-            {
-                RoverLocations.Add(card);
-                DeployRoverEvent?.Invoke(card);
-            }
-            else
-            {
-                RoverLocations.Remove(card);
-                RecallRoverEvent?.Invoke(card);
-            }
+            RoverLocations.Add(card);
+            TriggerDeployRoverEvent_ClientRpc(card.ID); 
         }
+        public void RecallRover(IConstructionCard card)
+        {
+            RoverLocations.Remove(card);
+            TriggerRecallRoverEvent_ClientRpc(card.ID);
+        }
+        [ClientRpc] void TriggerDeployRoverEvent_ClientRpc(int cardID) => DeployRoverEvent?.Invoke(Card.GetById<IConstructionCard>(cardID));
+        [ClientRpc] void TriggerRecallRoverEvent_ClientRpc(int cardID) => RecallRoverEvent?.Invoke(Card.GetById<IConstructionCard>(cardID));
 
         public bool CanAfford(IEnumerable<Resource> resourceCost, IEnumerable<Flag> flagCost)
         {

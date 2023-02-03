@@ -9,33 +9,27 @@ namespace moon
     [System.Serializable]
     public abstract class Phase
     {
-        public static System.Action<Phase> PhaseStartEvent, PhaseEndEvent; 
-        public System.Action<Phase> phaseStartEvent, phaseEndEvent;
+        public static System.Action PhaseStartEvent, PhaseEndEvent; 
 
         protected abstract void OnPhase();
 
         public void StartPhase()
         {
-            Debug.Log($"Starting {this}");
             Game.CurrentPhase = this;
-            phaseStartEvent?.Invoke(this);
-            OnPhase();
+            GameObject.FindObjectOfType<Game>().TriggerStartPhaseEvent_ClientRpc();
+            OnPhase(); 
         }
 
-        public void EndPhase()
+        public void NextPhase()
         {
-            phaseEndEvent?.Invoke(this);
-            NextPhase(this);
-        }
+            GameObject.FindObjectOfType<Game>().TriggerEndPhaseEvent_ClientRpc();
 
-        public void NextPhase(Phase previousPhase)
-        {
-            int i = Game.CurrentEra.Phases.IndexOf(previousPhase) + 1;
+            int i = Game.CurrentEra.Phases.IndexOf(this) + 1;
 
             if (Game.CurrentEra.Phases.Count > i)
                 Game.CurrentEra.Phases[i].StartPhase();
             else
-                Game.CurrentEra.EndEra(); 
+                Game.CurrentEra.NextEra();
         }
     }
 
@@ -51,13 +45,12 @@ namespace moon
                     Debug.Log(resources.Count); 
 
                     player.AddResources(resources); 
-                    player.ProduceEvent?.Invoke(card); 
                 }
 
                 player.AddResources(new List<Resource>() { player.BaseCard.ProductionResource });
             }
 
-            EndPhase();
+            NextPhase();
         }
     }
 
@@ -67,12 +60,13 @@ namespace moon
 
         protected override void OnPhase()
         {
+            UI_Game ui = GameObject.FindObjectOfType<UI_Game>();
+            ui.SetMessage("Construction Phase OnPhase()");
+
             DealStartingCards();
 
             Rounds = new(); 
-            Round round = new Round();
-            Rounds.Add(round);
-            round.StartRound(); 
+            Rounds.Add(new Round());
         }
 
         public void DealStartingCards()
@@ -94,7 +88,7 @@ namespace moon
                         Card card = Game.Deck.Pop();
                         Debug.Log($"Dealing {card.name} to {player.name}");
                         
-                        player.AddCardsToHand(new List<Card>() { card });
+                        player.AddCardToHand(card);
                     }
                 }
             }
@@ -111,7 +105,7 @@ namespace moon
             foreach (Player player in Game.Players)
                 GiveVPCardRewards(player);
 
-            NextPhase(this); 
+            NextPhase(); 
         }
 
         public void ScoreFlagRewards()

@@ -306,10 +306,8 @@ namespace moon
     {
         protected override void Do(Player player) => Phase.PhaseStartEvent += TakeHeartsForStructureSets;
 
-        void TakeHeartsForStructureSets(Phase phase)
+        void TakeHeartsForStructureSets()
         {
-            if (phase is ScoringPhase)
-            {
                 int action = Player.Tableau.OfType<ActionCard>().Count();
                 int resource = Player.Tableau.OfType<ResourceCard>().Count();
                 int flag = Player.Tableau.OfType<FlagCard>().Count();
@@ -321,7 +319,6 @@ namespace moon
                     vps.Add(Game.Resources.vp);
 
                 Player.AddResources(vps);
-            }
         }
     }
 
@@ -329,16 +326,13 @@ namespace moon
     {
         protected override void Do(Player player)
         {
-            Phase.PhaseStartEvent += async phase => { 
-                if(phase is ProductionPhase)
-                {
-                    Selection<Resource> selection = new(Game.Resources.all);
-                    Game.SelectionWindow.SetTitle("Gain one Extra Resource");
+            Phase.PhaseStartEvent += async () => { 
+                Selection<Resource> selection = new(Game.Resources.all);
+                Game.SelectionWindow.SetTitle("Gain one Extra Resource");
 
-                    await selection.Completion;
+                await selection.Completion;
 
-                    player.AddResources(new List<Resource>() { selection.SelectedItem }); 
-                }
+                player.AddResources(new List<Resource>() { selection.SelectedItem }); 
             }; 
         }
     }
