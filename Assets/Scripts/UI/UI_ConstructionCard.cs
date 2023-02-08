@@ -9,17 +9,18 @@ namespace moon
 
         public override void Style()
         {
-            IEnumerable<GameObject> icons = (Card as IConstructionCard).Icons;
-
-            foreach (var token in icons)
+            foreach (var icon in (Card as IConstructionCard).Icons)
             {
-                RectTransform rect = Instantiate(token, productionArea).GetComponent<RectTransform>();
-                Vector2 delta = productionArea.GetComponent<RectTransform>().sizeDelta; 
+                RectTransform rect = Instantiate(icon.Prefab, productionArea).GetComponent<RectTransform>();
+                Vector2 delta = productionArea.GetComponent<RectTransform>().sizeDelta;
+                UI_Icon ui = rect.GetComponent<UI_Icon>(); 
 
                 float iconSize = Mathf.Min(delta.x, delta.y) - 5;
 
                 rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, iconSize);
                 rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, iconSize);
+
+                ui.Style(icon);
             }
 
             base.Style();

@@ -18,8 +18,7 @@ namespace moon
             {
                 lastClick = Time.time + 2f; // Arbitrary Double-click lock out 
 
-                if (Game.Player == Game.CurrentTurn.Player && Game.Player.Tableau.Contains(Card as ActionCard))
-                    FindObjectOfType<Game>().UseCardAction_ServerRpc(Game.Player.OwnerClientId, Card.ID); 
+                new FlipCardAction(Card as ActionCard).Execute(Game.CurrentGame.Player); 
             }
             else
                 lastClick = Time.time;

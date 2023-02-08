@@ -9,7 +9,7 @@ namespace moon
     {
         public IIcon Icon { get; private set; }
         [SerializeField] Image iconImage;
-        [SerializeField] RawImage backgroundImage;
+        [SerializeField] Image backgroundImage;
 
         private void Start()
         {

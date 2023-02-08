@@ -16,11 +16,14 @@ namespace moon
     {
         protected override async void Do(Player player)
         {
-            Selection<PlayCard> selection = new(player.Hand.OfType<PlayCard>());
+            Selection<PlayCard> selection = new(player, player.Hand.OfType<PlayCard>());
             await selection.Completion; 
 
-            if(selection.SelectedItem != null) 
-                player.AddCardsToHand(new List<Card>() { Game.Deck.Pop() }); 
+            if(selection.SelectedItem != null)
+            {
+                player.RemoveCardFromHand(selection.SelectedItem);
+                player.AddCardToHand(Game.CurrentGame.Deck.Pop());
+            }
         }
     }
 
@@ -34,7 +37,7 @@ namespace moon
             // Select a Resource
             Resource resource = Game.Resources.wildcard;
 
-            Game.CurrentEra.Rewards[flag].Add(resource); 
+            Game.CurrentGame.CurrentEra.Rewards[flag].Add(resource); 
         }
     }
 
@@ -42,10 +45,10 @@ namespace moon
     {
         protected override async void Do(Player player)
         {
-            Selection<Flag> selection = new(Game.Flags.all); 
+            Selection<Flag> selection = new(player, Game.Flags.all); 
             await selection.Completion;
 
-            Game.CurrentEra.Rewards[selection.SelectedItem].Add(Game.Resources.vp);
+            Game.CurrentGame.CurrentEra.Rewards[selection.SelectedItem].Add(Game.Resources.vp);
         }
     }
 
@@ -71,9 +74,9 @@ namespace moon
     {
         protected override async void Do(Player player)
         {
-            Selection<Resource> selection = new(new List<Resource>() { Game.Resources.water, Game.Resources.energy, Game.Resources.metals, Game.Resources.organics });
+            Selection<Resource> selection = new(player, new List<Resource>() { Game.Resources.water, Game.Resources.energy, Game.Resources.metals, Game.Resources.organics });
 
-            await selection.Completion; 
+            await selection.Completion;
 
             player.AddResources(new List<Resource>() { selection.SelectedItem });
         }

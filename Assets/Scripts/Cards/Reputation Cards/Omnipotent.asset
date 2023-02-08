@@ -22,7 +22,7 @@ MonoBehaviour:
   <conditionText>k__BackingField: 'Have three or more of all four structure types,
     not including those on your Base.  '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378114
+    rid: 7149119867583201405
   <ClaimAction>k__BackingField:
     rid: 7149119721755378072
   references:
@@ -30,5 +30,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755378072
       type: {class: NullAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378114
+    - rid: 7149119867583201405
       type: {class: OmnipotentCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        setsRequired: 3

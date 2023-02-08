@@ -8,16 +8,13 @@ namespace moon
 {
     public class UI_Card : MonoBehaviour
     {
-        protected Game game; 
         [field: SerializeField] public ICard Card { get; private set; }
         [SerializeField] protected TextMeshProUGUI cardName;
         [SerializeField] protected Image cardImage;
-        [SerializeField] protected RawImage backgroundImage;
+        [SerializeField] protected Image backgroundImage;
 
         public void Awake()
         {
-            game = FindObjectOfType<Game>();
-
             if (Card != null)
                 Setup(Card); 
         }

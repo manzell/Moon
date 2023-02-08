@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b99d154b757a41418db167877d8d4af, type: 3}
   m_Name: Resourceful Expedition
   m_EditorClassIdentifier: 
-  prefab: {fileID: 8304795246522477094, guid: afc91e118cb4435408ea10a2749b4607, type: 3}
+  prefab: {fileID: 1994853019766663562, guid: d3783b7439ed5a74280276c7442dff3d, type: 3}
   type: 0
   era: {fileID: 0}
   cardImage: {fileID: 0}

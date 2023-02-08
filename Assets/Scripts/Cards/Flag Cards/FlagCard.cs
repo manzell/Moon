@@ -13,9 +13,13 @@ namespace moon
         public Player Rover { get; private set; }
         [SerializeField] List<Flag> flags = new();
         public List<Flag> Flags => flags;
-        public IEnumerable<GameObject> Icons => flags.Select(flag => flag.Prefab);
+        public IEnumerable<IIcon> Icons => flags;
+        public IEnumerable<IIcon> Resources => flags;
 
-
-        public void SetRover(Player player) => Rover = player; 
+        public void SetRover(Player player)
+        {
+            Rover = player;
+            AddRoverEvent?.Invoke(player); 
+        }
     }
 }

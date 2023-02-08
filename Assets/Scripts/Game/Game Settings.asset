@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Game Settings
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 2
-    SerializedBytes: 
+    SerializedFormat: 0
+    SerializedBytes: 0101150000003c0045007200610073003e006b005f005f004200610063006b0069006e0067004600690065006c0064002f000000000149000000530079007300740065006d002e0043006f006c006c0065006300740069006f006e0073002e00470065006e0065007200690063002e0051007500650075006500600031005b005b006d006f006f006e002e004500720061002c00200041007300730065006d0062006c0079002d004300530068006100720070005d005d002c0020006d00730063006f0072006c0069006200000000000603000000000000000c000000000c010000000c020000000705
     ReferencedUnityObjects:
     - {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
     - {fileID: 11400000, guid: e91a45711c7ce6c46b3046a9a886804c, type: 2}
@@ -23,40 +23,22 @@ MonoBehaviour:
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
-    SerializationNodes:
-    - Name: Eras
-      Entry: 7
-      Data: 0|System.Collections.Generic.Queue`1[[moon.Era, Assembly-CSharp]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 3
-    - Name: 
-      Entry: 10
-      Data: 0
-    - Name: 
-      Entry: 10
-      Data: 1
-    - Name: 
-      Entry: 10
-      Data: 2
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-  Bases:
+    SerializationNodes: []
+  <Bases>k__BackingField:
   - {fileID: 11400000, guid: 619e486d227db4f49a61c248a54c4000, type: 2}
   - {fileID: 11400000, guid: 83b4ce89ffacc8249ac858060cca0461, type: 2}
   - {fileID: 11400000, guid: 464632adee7c0ac4f82800581130f597, type: 2}
   - {fileID: 11400000, guid: 9fb99a4b9b3a5e24dba9a42051a75250, type: 2}
   - {fileID: 11400000, guid: 2705ed3346da7ba4e8b82db38723a23f, type: 2}
-  StartingResources:
+  <StartingResources>k__BackingField:
   - {fileID: 11400000, guid: 0afad15af1c3a5f49828a19b53318254, type: 2}
   - {fileID: 11400000, guid: 0afad15af1c3a5f49828a19b53318254, type: 2}
-  FirstPlayerExpedition: {fileID: 11400000, guid: c54bf4440e892f1478483f6a0f6df3aa, type: 2}
-  ExpeditionCards:
+  <FirstPlayerExpedition>k__BackingField: {fileID: 11400000, guid: c54bf4440e892f1478483f6a0f6df3aa, type: 2}
+  <ExpeditionCards>k__BackingField:
   - {fileID: 11400000, guid: dd9fec7a503dd434dac72e5f888eb7b9, type: 2}
   - {fileID: 11400000, guid: c7d3a73c5cc95de468e00572d9761b55, type: 2}
   - {fileID: 11400000, guid: 3ab0a8c98e8ffa04eb0045a2acda3e5c, type: 2}
   - {fileID: 11400000, guid: 7bc54b959b95a154091d165b573e0d4d, type: 2}
+  <MaxPlayers>k__BackingField: 5
+  <ReputationCardsPerEra>k__BackingField: 3
+  <PlayerImages>k__BackingField: []

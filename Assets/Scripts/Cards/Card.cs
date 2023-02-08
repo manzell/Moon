@@ -21,7 +21,7 @@ namespace moon
         public Sprite CardImage => cardImage;
         public int ID => id; 
 
-        public static Card GetById(int cardID) => Game.Cards.FirstOrDefault(card => card.ID == cardID);
-        public static T GetById<T>(int cardID) where T : ICard => Game.Cards.OfType<Card>().OfType<T>().FirstOrDefault(card => card.ID == cardID);
+        public static Card GetById(int cardID) => Game.CurrentGame.Cards.FirstOrDefault(card => card.ID == cardID);
+        public static T GetById<T>(int cardID) where T : ICard => Game.CurrentGame.Cards.OfType<Card>().OfType<T>().FirstOrDefault(card => card.ID == cardID);
     }
 }

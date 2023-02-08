@@ -21,7 +21,7 @@ MonoBehaviour:
   <VP>k__BackingField: 4
   <conditionText>k__BackingField: 'Have three or more grey structures '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378101
+    rid: 7149119867583201416
   <ClaimAction>k__BackingField:
     rid: 7149119721755378073
   references:
@@ -29,5 +29,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755378073
       type: {class: NullAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378101
+    - rid: 7149119867583201416
       type: {class: AmbitiousCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 3

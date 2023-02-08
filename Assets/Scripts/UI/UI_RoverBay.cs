@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace moon
 {
     // This Controls the Availability Icon of the Rover Space on Constructed Cards
-    public class UI_RoverBay : MonoBehaviour, IDropHandler
+    public class UI_RoverBay : MonoBehaviour
     {
         [SerializeField] Image RoverIcon;
         [SerializeField] Sprite AvailableIcon, OccupiedIcon;
@@ -27,12 +27,6 @@ namespace moon
         public void Style()
         {
             RoverIcon.sprite = card.Rover == null ? AvailableIcon : OccupiedIcon;
-        }
-
-        public void OnDrop(PointerEventData eventData)
-        {
-            if (eventData.selectedObject.TryGetComponent(out UI_Rover UI))
-                FindObjectOfType<Game>().DeployRover_ServerRpc(Game.Player.OwnerClientId, card.ID); 
         }
     }
 }

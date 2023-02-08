@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1952e38e53dbdd44e9c6613a6c2e1d24, type: 3}
   m_Name: LED Garden
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5579202174628756711, guid: 6af6090e9c7aa574dba3640ffe87ffcf, type: 3}
+  prefab: {fileID: 1994853019766663562, guid: 83e1fa8ab56fef94ebacbe4cfec94159, type: 3}
   type: 4
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}
@@ -21,8 +21,10 @@ MonoBehaviour:
     have Organic Production. '
   quote: 'Come over and plant your stuff! '
   flagRequirements: []
-  assimilationValue: []
-  resourceRequirements: []
+  assimilationValue:
+  - {fileID: 11400000, guid: 35f22be1ff34a8e469b15a052483096e, type: 2}
+  resourceRequirements:
+  - {fileID: 11400000, guid: 35f22be1ff34a8e469b15a052483096e, type: 2}
   cardResources: []
   <VP>k__BackingField:
     rid: 7149119721755378016

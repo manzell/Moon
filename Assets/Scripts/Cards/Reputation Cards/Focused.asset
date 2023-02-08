@@ -21,7 +21,7 @@ MonoBehaviour:
   <VP>k__BackingField: 2
   <conditionText>k__BackingField: 'Have six or more of one flag type '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378109
+    rid: 7149119867583201410
   <ClaimAction>k__BackingField:
     rid: 7149119721755378084
   references:
@@ -29,5 +29,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755378084
       type: {class: NullAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378109
+    - rid: 7149119867583201410
       type: {class: FocusedCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 6

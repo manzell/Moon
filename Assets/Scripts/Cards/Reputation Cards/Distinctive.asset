@@ -21,7 +21,7 @@ MonoBehaviour:
   <VP>k__BackingField: 1
   <conditionText>k__BackingField: 'Have three or more of one flag type '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378106
+    rid: 7149119867583201412
   <ClaimAction>k__BackingField:
     rid: 7149119721755377970
   references:
@@ -29,5 +29,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755377970
       type: {class: DistinctiveAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378106
+    - rid: 7149119867583201412
       type: {class: DistinctiveCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 3

@@ -21,7 +21,7 @@ MonoBehaviour:
   <VP>k__BackingField: 0
   <conditionText>k__BackingField: 'Have two or more yellow structures with 3 flags '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378103
+    rid: 7149119867583201415
   <ClaimAction>k__BackingField:
     rid: 7149119721755378078
   references:
@@ -29,5 +29,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755378078
       type: {class: NullAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378103
+    - rid: 7149119867583201415
       type: {class: BombasticCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 2

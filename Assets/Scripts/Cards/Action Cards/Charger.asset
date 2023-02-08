@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6008abadb40c62047923c5dd82fdb725, type: 3}
   m_Name: Charger
   m_EditorClassIdentifier: 
-  prefab: {fileID: 8662706812728948544, guid: fe6cf556eb90e494585a9808ecdc0133, type: 3}
+  prefab: {fileID: 1994853019766663562, guid: 6cb8cb4455b2f3b4a8954b14e4e81c12, type: 3}
   type: 3
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}
@@ -25,3 +25,10 @@ MonoBehaviour:
   resourceRequirements:
   - {fileID: 11400000, guid: 2c0af2ba0b79d054194e5b10054e7560, type: 2}
   cardResources: []
+  <FlipAction>k__BackingField:
+    rid: 7149119867583201515
+  references:
+    version: 2
+    RefIds:
+    - rid: 7149119867583201515
+      type: {class: Charger, ns: moon, asm: Assembly-CSharp}

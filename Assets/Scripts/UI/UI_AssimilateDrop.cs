@@ -11,8 +11,15 @@ namespace moon
         {
             if (eventData.selectedObject.TryGetComponent(out UI_PlayCard UI))
             {
-                Game game = FindObjectOfType<Game>();
-                game.Assimilate_ServerRpc(Game.Player.OwnerClientId, UI.Card.ID);
+                PlayCard card = UI.Card as PlayCard; 
+
+                if (Game.CurrentGame.Player.Hand.Contains(card))
+                {
+                    TurnAction action = new AssimilateAction(card);
+                    action.Execute(Game.CurrentGame.Player);
+
+                    Game.CurrentGame.Player.enableTurnEndEvent?.Invoke();
+                }
             }
         }
     }

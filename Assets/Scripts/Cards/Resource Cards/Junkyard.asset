@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bebd065cc00bd4945ace5e92512bafd4, type: 3}
   m_Name: Junkyard
   m_EditorClassIdentifier: 
-  prefab: {fileID: 6889580286731067202, guid: 2f35088daab0ed545a953e6a63e64567, type: 3}
+  prefab: {fileID: 1994853019766663562, guid: cf69ed5c07a7338479cbf1a576c94250, type: 3}
   type: 1
   era: {fileID: 11400000, guid: 8a4d50ff3a0e43248aa7ba4adaaa8561, type: 2}
   cardImage: {fileID: 0}
@@ -24,7 +24,8 @@ MonoBehaviour:
   assimilationValue:
   - {fileID: 11400000, guid: 36436ebf3554f494184658136a06648b, type: 2}
   resourceRequirements: []
-  cardResources: []
+  cardResources:
+  - {fileID: 11400000, guid: 836547bf1c5b3804585d670c18f0ee4a, type: 2}
   <productionAction>k__BackingField:
     rid: 7149119642125205508
   references:
@@ -33,7 +34,7 @@ MonoBehaviour:
     - rid: 7149119642125205508
       type: {class: SelectProduction, ns: moon, asm: Assembly-CSharp}
       data:
-        resources:
+        <resources>k__BackingField:
         - {fileID: 11400000, guid: 35f22be1ff34a8e469b15a052483096e, type: 2}
         - {fileID: 11400000, guid: 2c0af2ba0b79d054194e5b10054e7560, type: 2}
         - {fileID: 11400000, guid: 36436ebf3554f494184658136a06648b, type: 2}

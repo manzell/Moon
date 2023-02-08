@@ -13,24 +13,19 @@ namespace moon
 
         public bool CanEndTurn => Actions.OfType<PlayCardAction>().Count() > 0; 
 
-        public Turn(Player player)
-        {
-            Player = player;
-            Game.CurrentTurn = this;
-            Game.CurrentEra.Turns.Add(this);
-            GameObject.FindObjectOfType<Game>().TriggerStartTurnEvent_ClientRpc(player.OwnerClientId); 
-        }
+        public Turn(Player player) => Player = player;
 
         public void NextTurn()
         {
-            GameObject.FindObjectOfType<Game>().TriggerEndTurnEvent_ClientRpc(Player.OwnerClientId);
-            Player nextPlayer = Game.Players.Where(player => Game.Players.IndexOf(player) > Game.Players.IndexOf(Player) && 
-                player.Hand.OfType<PlayCard>().Count() > 0).FirstOrDefault();
+            Game.CurrentGame.TriggerEndTurnEvent_ClientRpc(Player.OwnerClientId);
+
+            Player nextPlayer = Game.CurrentGame.Players.Where(player => Game.CurrentGame.Players.IndexOf(player) > Game.CurrentGame.Players.IndexOf(Player) && 
+                player.Hand.OfType<PlayCard>().Count() > 0).OrderBy(player => Game.CurrentGame.Players.IndexOf(player)).FirstOrDefault();
 
             if (nextPlayer != null)
-                new Turn(nextPlayer);
+                Game.CurrentGame.StartTurn(nextPlayer); 
             else
-                Game.CurrentRound.NextRound();
+                Game.CurrentGame.CurrentRound.NextRound();
         }
     }
 }

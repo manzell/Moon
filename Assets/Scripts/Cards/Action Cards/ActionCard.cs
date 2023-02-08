@@ -8,7 +8,7 @@ namespace moon
 {
     public class ActionCard : PlayCard
     {
-        [field: SerializeField] public FlipAction FlipAction { get; private set; }
+        [field: SerializeReference] public FlipAction FlipAction { get; private set; }
     }
 
     public abstract class FlipAction : TurnAction
@@ -47,21 +47,20 @@ namespace moon
         {
             if(player.Resources.Count(res => res == Game.Resources.metals) > 0)
             {
-                Selection<Resource> selection = new(new List<Resource>() { Game.Resources.metals });
+                Selection<Resource> selection = new(player, new List<Resource>() { Game.Resources.metals });
                 await selection.Completion;
 
                 if (selection.SelectedItem != null)
                 {
-                    Selection<IConstructionCard> buildSelection = new(Game.Deck.OfType<IConstructionCard>());
+                    Selection<IConstructionCard> buildSelection = new(player, Game.CurrentGame.Deck.OfType<IConstructionCard>());
                     await buildSelection.Completion; 
 
                     if(buildSelection.SelectedItem != null)
                     {
-                        TurnAction action = new FreeBuildAction();
-                        action.SetCard(buildSelection.SelectedItem);
+                        TurnAction action = new FreeBuildAction(buildSelection.SelectedItem);
                         action.Execute(player);
 
-                        Game.ShuffleDeck(); 
+                        Game.CurrentGame.ShuffleDeck(); 
                     }
                 }
             }
@@ -81,11 +80,11 @@ namespace moon
         protected override async void Do(Player player)
         {
             NumberSelection selection = new(0, player.Resources.Count(res => res == Game.Resources.energy));
-            Game.SelectionWindow.SetTitle($"Discard any amount of energy and score {Game.CurrentEra.Multiplier} VP for each");
+            Game.CurrentGame.SelectionWindow.SetTitle($"Discard any amount of energy and score {Game.CurrentGame.CurrentEra.Multiplier} VP for each");
 
             await selection.Completion;
-
-            player.AddResources(Enumerable.Repeat(Game.Resources.vp, selection.SelectedItem * Game.CurrentEra.Multiplier)); 
+            Debug.Log($"Charger->AddResources {selection.SelectedItem} x {Game.CurrentGame.CurrentEra.Multiplier} (Multiplayer)");
+            player.AddResources(Enumerable.Repeat(Game.Resources.vp, selection.SelectedItem * Game.CurrentGame.CurrentEra.Multiplier)); 
         }
     }
 }

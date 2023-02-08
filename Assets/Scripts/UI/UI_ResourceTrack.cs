@@ -15,8 +15,9 @@ namespace moon
 
         public void Setup()
         {
-            Game.Player.AddResourcesEvent += r => UpdateCount();
-            Game.Player.LoseResourcesEvent += r => UpdateCount();
+            Debug.Log($"Setting up resource monitor for {resource.name}");
+            Game.CurrentGame.Player.AddResourcesEvent += r => UpdateCount();
+            Game.CurrentGame.Player.LoseResourcesEvent += r => UpdateCount();
             Style();
             UpdateCount(); 
         }
@@ -27,6 +28,6 @@ namespace moon
             resourceIcon.sprite = resource.Icon;
         }
 
-        void UpdateCount() => resourceCount.text = Game.Player.Resources.Count(resource => resource == this.resource).ToString();
+        void UpdateCount() => resourceCount.text = Game.CurrentGame.Player.Resources.Count(resource => resource == this.resource).ToString();
     }
 }

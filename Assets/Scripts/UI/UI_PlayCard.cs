@@ -8,13 +8,11 @@ using UnityEngine.UI;
 
 namespace moon
 {
-    public class UI_PlayCard : UI_Card, IDragHandler, IBeginDragHandler, IEndDragHandler
+    public class UI_PlayCard : UI_Card
     {
         [SerializeField] protected TextMeshProUGUI subtitle, quote;
         [SerializeField] Transform resourceCostArea, flagCostArea, assimilationArea;
         [SerializeField] RawImage cardTypeBackground;
-        RectTransform rect;
-        Transform previousParent; 
 
         public override void Style()
         {
@@ -22,8 +20,6 @@ namespace moon
             {
                 subtitle.text = playCard.Subtitle;
                 quote.text = playCard.Quote;
-
-                cardTypeBackground.color = Game.Graphics.CardTypeColors[playCard.Type];
 
                 foreach (Transform t in resourceCostArea) Destroy(t.gameObject);
                 foreach (Transform t in flagCostArea) Destroy(t.gameObject);
@@ -51,44 +47,7 @@ namespace moon
                 }
             }
 
-            base.Style();
-        }
-
-        public void OnBeginDrag(PointerEventData eventData)
-        {
-            if(Game.CurrentTurn.Player.IsOwner)
-            {
-                rect = GetComponent<RectTransform>();
-                GetComponent<CanvasGroup>().alpha = 0.7f;
-                GetComponent<CanvasGroup>().blocksRaycasts = false;
-
-                previousParent = transform.parent;
-                eventData.selectedObject = this.gameObject;
-
-                transform.SetParent(previousParent.parent);
-                FindObjectsOfType<UI_CardPlayArea>().ForEach(cpa => cpa.GetComponentsInChildren<Graphic>().ForEach(graphic => graphic.raycastTarget = true));
-            }
-            else
-            {
-                eventData.pointerDrag = null; 
-            }
-        }
-
-        public void OnDrag(PointerEventData eventData)
-        {
-            if (Game.CurrentTurn.Player.IsOwner)
-                rect.anchoredPosition += eventData.delta;
-        }
-
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            Debug.Log("UI_PlayCard.OnEndDrag() - This is moving the card back into our hand area");
-            eventData.selectedObject.transform.SetParent(previousParent); 
-
-            GetComponent<CanvasGroup>().alpha = 1f;
-            GetComponent<CanvasGroup>().blocksRaycasts = true;
-
-            FindObjectsOfType<UI_CardPlayArea>().ForEach(cpa => cpa.GetComponentsInChildren<Graphic>().ForEach(graphic => graphic.raycastTarget = false));
+            base.Style(); 
         }
     }
 }

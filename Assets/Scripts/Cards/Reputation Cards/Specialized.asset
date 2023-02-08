@@ -21,7 +21,7 @@ MonoBehaviour:
   <VP>k__BackingField: 2
   <conditionText>k__BackingField: 'Have two identical blue structures '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378118
+    rid: 7149119867583201402
   <ClaimAction>k__BackingField:
     rid: 7149119721755377971
   references:
@@ -29,5 +29,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755377971
       type: {class: SpecializedAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378118
+    - rid: 7149119867583201402
       type: {class: SpecializedCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 2

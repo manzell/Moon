@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,7 +11,16 @@ namespace moon
         public void OnDrop(PointerEventData eventData)
         {
             if (eventData.selectedObject.TryGetComponent(out UI_PlayCard UI))
-                FindObjectOfType<Game>().BuildStructure_ServerRpc(Game.Player.OwnerClientId, UI.Card.ID);
+            {
+                TurnAction action = new BuildAction(UI.Card as PlayCard);
+
+                if(action.Can(Game.CurrentGame.Player))
+                {
+                    eventData.selectedObject.transform.SetParent(this.transform);
+                    action.Execute(Game.CurrentGame.Player);
+                    Game.CurrentGame.Player.enableTurnEndEvent?.Invoke(); 
+                }
+            }
         }
     }
 }

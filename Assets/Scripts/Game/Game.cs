@@ -4,50 +4,50 @@ using System.Linq;
 using UnityEngine;
 using Unity.Netcode;
 using Sirenix.Utilities;
-using TMPro;
 
 namespace moon
 {
     public class Game : NetworkBehaviour
     {
-        public static System.Action<Player> AddPlayerEvent; 
+        public static System.Action<Player> AddPlayerEvent;
         public static System.Action StartGameEvent, EndGameEvent;
         public static System.Action<ReputationCard> ClaimRepCardEvent, AddRepCardEvent;
 
-        public static GameSettings GameSettings => FindObjectOfType<Game>().gameSettings;
-        [SerializeField] GameSettings gameSettings;
-
-        public static Graphics Graphics; 
-        [SerializeField] Graphics graphics;
-
+        public static Game CurrentGame { get; private set; }
+        public static Graphics Graphics;
         public static Resources Resources;
-        [SerializeField] Resources resources;
-
         public static Flags Flags;
+        
+        [SerializeField] Graphics graphics;
+        [SerializeField] Resources resources;
         [SerializeField] Flags flags;
 
-        public static UI_SelectionWindow SelectionWindow => FindObjectOfType<Game>().selectionWindowPrefab; 
+        public GameSettings GameSettings => CurrentGame.gameSettings;
+        [SerializeField] GameSettings gameSettings;
+
+        public UI_SelectionWindow SelectionWindow => CurrentGame.selectionWindowPrefab; 
         [SerializeField] UI_SelectionWindow selectionWindowPrefab; 
 
-        public static Player Player;
-        public static List<Player> Players = new();
+        public Player Player;
+        public List<Player> Players = new();
 
-        public static Queue<Era> Eras { get; private set; } 
-        public static HashSet<Card> Cards { get; private set; } = new(); 
-        public static Stack<PlayCard> Deck { get; private set; } = new(); 
-        public static List<ReputationCard> ReputationCards { get; private set; } = new();
-        public static List<ExpeditionCard> ExpeditionCards { get; private set; } = new();
-        public static List<BaseCard> BaseCards { get; private set; } = new();
-        public static List<PlayCard> Discards { get; private set; } = new(); 
-        public static Dictionary<Flag, List<Resource>> Rewards { get; private set; } = new(); 
+        public Queue<Era> Eras { get; private set; } 
+        public HashSet<Card> Cards { get; private set; } = new(); 
+        public Stack<PlayCard> Deck { get; private set; } = new(); 
+        public List<ReputationCard> ReputationCards { get; private set; } = new();
+        public List<ExpeditionCard> ExpeditionCards { get; private set; } = new();
+        public List<BaseCard> BaseCards { get; private set; } = new();
+        public List<PlayCard> Discards { get; private set; } = new(); 
+        public Dictionary<Flag, List<Resource>> Rewards { get; private set; } = new(); 
 
-        public static Era CurrentEra;
-        public static Phase CurrentPhase;
-        public static Round CurrentRound;
-        public static Turn CurrentTurn;
+        public Era CurrentEra;
+        public Phase CurrentPhase;
+        public Round CurrentRound;
+        public Turn CurrentTurn;
 
         void Awake()
         {
+            CurrentGame = this; 
             Graphics = graphics;
             Flags = flags;
             Resources = resources;
@@ -58,7 +58,7 @@ namespace moon
             Cards.UnionWith(gameSettings.Eras.SelectMany(era => era.Deck)); 
         }
 
-        public static void AddPlayer(Player player)
+        public void AddPlayer(Player player)
         {
             if (Players.Count < GameSettings.MaxPlayers)
             {
@@ -85,37 +85,29 @@ namespace moon
 
                 for (int i = 0; i < Players.Count; i++)
                 {
+                    Player player = Players[i];
                     Players[i].AddResources(gameSettings.StartingResources);
                     Players[i].SetBaseCard(BaseCards[i]);                
 
                     if (i == 0 && Players.Count > 1)
-                        Players[i].AddCardsToHand(new List<ExpeditionCard>() { gameSettings.FirstPlayerExpedition });
+                        Players[i].AddCardToHand(gameSettings.FirstPlayerExpedition);
                     else
-                        Players[i].AddCardsToHand(new List<ExpeditionCard>() { ExpeditionCards[i] });
+                        Players[i].AddCardToHand(ExpeditionCards[i]);
                 }
 
                 TriggerStartGameEvent_ClientRpc();
-
-                CurrentEra = Eras.Dequeue();
-                CurrentEra.StartEra();
+                StartEra();
             }
             else
             {
                 Debug.LogWarning($"Must have between 1 and {gameSettings.MaxPlayers} players connected");
             }
         }
-        [ClientRpc] void TriggerStartGameEvent_ClientRpc()
-        {
-            FindObjectOfType<UI_Game>().SetMessage($"Trigger Start Game - {Player.name}"); 
-            StartGameEvent?.Invoke();
-        }
+        [ClientRpc] void TriggerStartGameEvent_ClientRpc() => StartGameEvent?.Invoke();
 
-        public void EndTurnButton() => EndTurnButton_ServerRpc();
-        [ServerRpc] void EndTurnButton_ServerRpc() => CurrentTurn.NextTurn();
-
-        public static void EndGame() // Move most of this to clientside
+        public void EndGame() // Move most of this to clientside?
         {
-            FindObjectOfType<Game>().TriggerEndGameEvent_ClientRpc();
+            TriggerEndGameEvent_ClientRpc();
 
             int maxVP = Players.Max(player => player.Resources.Count(resource => resource == Resources.vp));
 
@@ -127,124 +119,108 @@ namespace moon
                 Debug.Log($"{string.Join(" & ", winningPlayers.Select(player => player.name))} tied for First Place");
         }
         [ClientRpc] void TriggerEndGameEvent_ClientRpc() => EndGameEvent?.Invoke();
+
+        public void StartEra()
+        {
+            StartEra_ClientRpc();
+            CurrentEra?.StartEra();
+        }
+        [ClientRpc] public void StartEra_ClientRpc()
+        {
+            CurrentEra = Eras.Dequeue(); 
+            Debug.Log($"Starting {CurrentEra.name}");
+
+            Era.EraStartEvent?.Invoke();
+
+        }
+        [ClientRpc] public void TriggerEndEraEvent_ClientRpc() => Era.EraEndEvent?.Invoke();
+
+        public void StartPhase()
+        {
+            StartPhase_ClientRpc();
+            CurrentPhase?.StartPhase();
+        }
+        [ClientRpc] public void StartPhase_ClientRpc()
+        {
+            CurrentPhase = CurrentEra.Phases[CurrentEra.Phases.IndexOf(CurrentPhase) + 1];
+            Phase.PhaseStartEvent?.Invoke();
+        }
+        [ClientRpc] public void TriggerEndPhaseEvent_ClientRpc() => Phase.PhaseEndEvent?.Invoke();
+
+        public void StartRound() => StartRound_ClientRpc();
+        [ClientRpc] public void StartRound_ClientRpc()
+        {
+            Debug.Log("Starting Round");
+            Round.StartRoundEvent?.Invoke();
+            CurrentRound = new Round();
+        }
+        [ClientRpc] public void TriggerEndRoundEvent_ClientRpc() => Round.EndRoundEvent?.Invoke();
+
+        public void StartTurn(Player player) => StartTurn_ClientRpc(player.OwnerClientId); 
+        [ClientRpc] public void StartTurn_ClientRpc(ulong playerID)
+        {
+            Player player = Player.GetById(playerID);
+
+            CurrentTurn = new Turn(player);
+            CurrentEra.Turns.Add(CurrentTurn);
+            Debug.Log($"Starting {player.name} turn");
+            Turn.StartTurnEvent?.Invoke(player);
+        }
+        [ClientRpc] public void TriggerEndTurnEvent_ClientRpc(ulong playerID) => Turn.EndTurnEvent?.Invoke(Player.GetById(playerID));
+
+        public void EndTurnButton() => EndTurnButton_ServerRpc();
+        [ServerRpc(RequireOwnership = false)] void EndTurnButton_ServerRpc() => CurrentTurn.NextTurn();
         #endregion
 
-        #region Basic Player Actions
-
-        [ServerRpc(RequireOwnership = false)]
-        public void BuildStructure_ServerRpc(ulong playerID, int cardID)
+        public void AddCardsToDeck(IEnumerable<PlayCard> cards)
         {
-            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
-            PlayCard card = Card.GetById<PlayCard>(cardID);
-            
-            TurnAction action = new BuildAction();
-            action.SetCard(card);
-            action.Execute(player);
+            cards.ForEach(card => Deck.Push(card));
         }
+        public void ShuffleDeck() => Deck = new(Deck.OrderBy(x => Random.value));
 
-        [ServerRpc(RequireOwnership = false)]
-        public void Assimilate_ServerRpc(ulong playerID, int cardID)
+        public void AddRepCards(IEnumerable<ReputationCard> cards) => AddRepCards_ServerRpc(cards.Select(card => card.ID).ToArray()); 
+        [ServerRpc (RequireOwnership = false)] public void AddRepCards_ServerRpc(int[] cardIDs)
         {
-            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
-            PlayCard card = Card.GetById<PlayCard>(cardID); 
-            
-            TurnAction action = new AssimilateAction();
-            action.SetCard(card);
-            action.Execute(player);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void Expedition_ServerRpc(ulong playerID, int cardID)
-        {
-            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
-            ExpeditionCard card = Card.GetById<ExpeditionCard>(cardID); 
-           
-            TurnAction action = new ExpeditionAction();
-            action.SetCard(card);
-            action.Execute(player);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void DeployRover_ServerRpc(ulong playerID, int destinationcardID)
-        {
-            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
-            IConstructionCard card = Card.GetById(destinationcardID) as IConstructionCard; 
-
-            TurnAction action = new RoverAction();
-            action.SetCard(card);
-            action.Execute(player);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void UseCardAction_ServerRpc(ulong playerID, int cardID)
-        {
-            Player player = Player.GetById(playerID); 
-            ActionCard card = Card.GetById<ActionCard>(cardID);            
-            TurnAction action = new FlipCardAction();
-
-            action.SetCard(card);
-            action.Execute(player);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void ClaimReputation_ServerRpc(ulong playerID, int cardID)
-        {
-            Player player = Players.FirstOrDefault(player => playerID == player.OwnerClientId);
-            ReputationCard card = Card.GetById<ReputationCard>(cardID);
-
-            TurnAction action = new ClaimReputationAction();
-            action.SetCard(card);
-            action.Execute(player);
-        }
-        #endregion
-
-        public static void ShuffleDeck() => Deck = new(Deck.OrderBy(x => Random.value));
-
-        public static void AddCardsToDeck(IEnumerable<PlayCard> cards)
-        {
-            cards.ForEach(card => Deck.Push(card)); 
-        }
-
-        public static void AddReputationCards(IEnumerable<ReputationCard> cards)
-        {
-            cards.ForEach(card => {
+            cardIDs.ForEach(id => {
+                ReputationCard card = Card.GetById<ReputationCard>(id); 
                 ReputationCards.Add(card);
-                FindObjectOfType<Game>().TriggerAddRepCardEvent_ClientRpc(card.ID);
+                CurrentGame.TriggerAddRepCardEvent_ClientRpc(card.ID);
             });
         }
         [ClientRpc] void TriggerAddRepCardEvent_ClientRpc(int id) => AddRepCardEvent?.Invoke(Card.GetById<ReputationCard>(id));
 
-        [ClientRpc] public void TriggerStartEraEvent_ClientRpc()
+        [ServerRpc] public void PassCardsRight_ServerRpc()
         {
-            Debug.Log($"Starting {CurrentEra.name}");
-            Era.EraStartEvent?.Invoke();
+            if (Players.Count > 1)
+            {
+                List<Card> firstPlayerCards = new(Players.First().Hand);
+                List<Card> lastPlayerCards = new(Players.Last().Hand);
+
+                for (int i = 0; i < Players.Count - 1; i++)
+                {
+                    Player player = Players[i];
+                    player.RemoveCardsFromHand(player.Hand);
+                    player.AddCardsToHand(Players[i + 1].Hand);
+                }
+
+                Players.Last().RemoveCardsFromHand(lastPlayerCards);
+                Players.Last().AddCardsToHand(firstPlayerCards);
+            }
         }
-        [ClientRpc] public void TriggerEndEraEvent_ClientRpc() => Era.EraEndEvent?.Invoke();
 
-        [ClientRpc] public void TriggerStartPhaseEvent_ClientRpc() => Phase.PhaseStartEvent?.Invoke();
-        [ClientRpc] public void TriggerEndPhaseEvent_ClientRpc() => Phase.PhaseEndEvent?.Invoke();
-
-        [ClientRpc] public void TriggerStartRoundEvent_ClientRpc()
+        [ServerRpc] public void ShiftTurnOrder_ServerRpc()
         {
-            Debug.Log("Starting Round");
-            Round.StartRoundEvent?.Invoke();
+            Player firstPlayer = Game.CurrentGame.Players.First();
+            Game.CurrentGame.Players.Remove(firstPlayer);
+            Game.CurrentGame.Players.Add(firstPlayer);
         }
-        [ClientRpc] public void TriggerEndRoundEvent_ClientRpc() => Round.EndRoundEvent?.Invoke();
 
-        [ClientRpc] public void TriggerStartTurnEvent_ClientRpc(ulong playerID)
-        {
-            Player player = Players.Where(player => player.OwnerClientId == playerID).FirstOrDefault();
+        [ServerRpc] public void SetRover_ServerRpc(int cardID, ulong playerID) => SetRover_ClientRpc(cardID, playerID);
 
-            FindObjectOfType<UI_Game>().SetMessage($"StartTurn_ClientRpc({playerID}: {player.name})");
-
-            Debug.Log($"Starting {player.name} turn");
-            Turn.StartTurnEvent?.Invoke(player);
-        }
-        [ClientRpc] public void TriggerEndTurnEvent_ClientRpc(ulong playerID) => Turn.EndTurnEvent?.Invoke(Players.Where(player => player.OwnerClientId == playerID).FirstOrDefault());
+        [ClientRpc] public void SetRover_ClientRpc(int cardID, ulong playerID) => Card.GetById<IConstructionCard>(cardID).SetRover(Player.GetById(playerID)); 
     }
 
-    [System.Serializable]
-    public class Resources
+    [System.Serializable] public class Resources
     {
         public List<Resource> all => new() { energy, metals, organics, water, wildcard, vp, rover }; 
         [field: SerializeField] public Resource energy { get; private set; }
@@ -256,8 +232,7 @@ namespace moon
         [field: SerializeField] public Resource rover { get; private set; }
     }
 
-    [System.Serializable]
-    public class Flags
+    [System.Serializable] public class Flags
     {
         public List<Flag> all => new() { food, housing, production, science, transportation }; 
         [field: SerializeField] public Flag food { get; private set; }

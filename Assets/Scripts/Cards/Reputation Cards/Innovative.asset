@@ -21,7 +21,7 @@ MonoBehaviour:
   <VP>k__BackingField: 2
   <conditionText>k__BackingField: 'Have 3 or more hearts placed on your structures '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378112
+    rid: 7149119867583201407
   <ClaimAction>k__BackingField:
     rid: 7149119721755378087
   references:
@@ -29,5 +29,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755378087
       type: {class: NullAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378112
+    - rid: 7149119867583201407
       type: {class: InnovativeCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 3

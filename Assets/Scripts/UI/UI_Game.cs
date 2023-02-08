@@ -1,23 +1,27 @@
 using UnityEngine;
 using System.Linq;
-using Sirenix.Utilities;
 using TMPro;
 using UnityEngine.UI;
+using Sirenix.Utilities;
 
 namespace moon
 {
     public class UI_Game : MonoBehaviour
     {
-        [SerializeField] Player player;
+        public static bool IsOurTurn { get; private set; }
+
         [SerializeField] Transform productionCards, flagCards, actionCards, victoryCards, opponentCards, hand, reputationCards, baseFlag, baseResource; 
         [SerializeField] UI_ConstructedCard constructedPrefab;
         [SerializeField] TextMeshProUGUI messageBox, baseName; 
         [SerializeField] GameObject endTurnButton, splash, baseArea;
         [SerializeField] Transform startGameButton, startHostButton, startClientButton;
 
+        Player player;
+
         private void Start()
         {
-            Game.AddPlayerEvent += SetPlayer; 
+            Game.AddPlayerEvent += SetPlayer;
+            Screen.SetResolution(1920, 1080, false);
         }
 
         public void SetPlayer(Player player)
@@ -30,9 +34,8 @@ namespace moon
                 Game.AddRepCardEvent += OnAddRepCard;
                 
                 Turn.StartTurnEvent += OnTurnStart;
-                Turn.StartTurnEvent += player => UpdateEndTurnButton();
                 Player.AddCardToTableauEvent += AddCardToTableau;
-                TurnAction.ActionEvent += action => UpdateEndTurnButton();
+                player.enableTurnEndEvent += () => endTurnButton.GetComponent<Button>().interactable = true;
 
                 player.AddCardToHandEvent += OnGainCard;
                 player.RemoveCardFromHandEvent += OnLoseCard;
@@ -68,42 +71,48 @@ namespace moon
 
         void OnTurnStart(Player player)
         {
-            endTurnButton.SetActive(Game.Player == player);
+            IsOurTurn = Game.CurrentGame.Player == player; 
+            endTurnButton.SetActive(IsOurTurn);
+            endTurnButton.GetComponent<Button>().interactable = false; 
 
-            if (Game.Player == player)
+            if (IsOurTurn)
                 SetMessage($"Your Turn");
             else
                 SetMessage($"{player.name}'s Turn");
         }
 
-        void UpdateEndTurnButton()
+        public void OnGainCard(ICard card)
         {
-            endTurnButton.GetComponent<Button>().interactable = Game.CurrentTurn.Player == Game.Player && Game.CurrentTurn.CanEndTurn;
+            //Debug.Log($"Adding {card.name} to {player.name}'s Hand");
+            Instantiate(card.Prefab, hand).GetComponent<UI_Card>().Setup(card);
         }
 
-        public void OnGainCard(Card card)
+        public void OnLoseCard(ICard card)
         {
-            UI_Card ui = Instantiate(card.Prefab, hand).GetComponent<UI_Card>(); 
-            ui.Setup(card);
-        }
-
-        public void OnLoseCard(Card card)
-        {
-            Destroy(GetComponentsInChildren<UI_Card>().Where(ui => card == (Card)ui.Card).FirstOrDefault()?.gameObject); 
+            //Debug.Log($"Removing {card.name} from {player.name}'s Hand");
+            Destroy(GetComponentsInChildren<UI_Card>().Where(ui => card == ui.Card).FirstOrDefault()?.gameObject); 
         }
 
         public void AddCardToTableau(Player player, PlayCard card)
         {
+            UI_Card ui = null; 
+
             if(player.IsOwner)
             {
                 if (card is ResourceCard productionCard)
-                    Instantiate(card.Prefab, productionCards).GetComponent<UI_Card>().Setup(card);
+                    ui = Instantiate(card.Prefab, productionCards).GetComponent<UI_Card>();
                 else if (card is FlagCard flagCard)
-                    Instantiate(card.Prefab, flagCards).GetComponent<UI_Card>().Setup(card);
+                    ui = Instantiate(card.Prefab, flagCards).GetComponent<UI_Card>();
                 else if (card is ActionCard actionCard)
-                    Instantiate(card.Prefab, actionCards).GetComponent<UI_Card>().Setup(card);
+                    ui = Instantiate(card.Prefab, actionCards).GetComponent<UI_Card>();
                 else if (card is VictoryCard victoryCard)
-                    Instantiate(card.Prefab, victoryCards).GetComponent<UI_Card>().Setup(card);
+                    ui = Instantiate(card.Prefab, victoryCards).GetComponent<UI_Card>();
+
+                if(ui != null)
+                {
+                    ui.Setup(card);
+                    Destroy(ui.gameObject.GetComponent<UI_PlayCardDrag>()); 
+                }
             }
             else
             {
@@ -127,8 +136,8 @@ namespace moon
         {
             baseName.text = card.name;
 
-            GameObject r = Instantiate(card.ProductionResource.Prefab, baseResource);
-            GameObject f = Instantiate(card.Flag.Prefab, baseFlag);
+            Instantiate(card.ProductionResource.Prefab, baseResource).GetComponent<UI_Icon>().Style(card.ProductionResource);
+            Instantiate(card.Flag.Prefab, baseFlag).GetComponent<UI_Icon>().Style(card.Flag); 
         }
     }
 }

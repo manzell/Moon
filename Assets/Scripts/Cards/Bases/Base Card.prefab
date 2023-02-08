@@ -440,7 +440,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2927670396690432565}
-  - component: {fileID: 2927670396690432562}
   m_Layer: 5
   m_Name: Base Card
   m_TagString: Untagged
@@ -473,21 +472,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -280}
   m_SizeDelta: {x: 150, y: 60}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &2927670396690432562
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2927670396690432564}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63e37b221bf4d7c419845848aef7dd83, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cardName: {fileID: 2927670396417150925}
-  cardImage: {fileID: 8047712106461942366}
-  backgroundImage: {fileID: 6141898661576239538}
 --- !u!1 &2927670396846466380
 GameObject:
   m_ObjectHideFlags: 0

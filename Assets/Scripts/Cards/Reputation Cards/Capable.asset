@@ -21,7 +21,7 @@ MonoBehaviour:
   <VP>k__BackingField: 6
   <conditionText>k__BackingField: 'Spend 7 or more resources in 1 turn '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378104
+    rid: 7149119867583201414
   <ClaimAction>k__BackingField:
     rid: 7149119721755378076
   references:
@@ -29,5 +29,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755378076
       type: {class: NullAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378104
+    - rid: 7149119867583201414
       type: {class: CapableCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 7

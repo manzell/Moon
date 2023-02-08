@@ -21,7 +21,7 @@ MonoBehaviour:
   <VP>k__BackingField: 3
   <conditionText>k__BackingField: 'Have six or more rovers in your settlement '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378121
+    rid: 7149119867583201399
   <ClaimAction>k__BackingField:
     rid: 7149119721755378074
   references:
@@ -29,5 +29,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755378074
       type: {class: NullAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378121
+    - rid: 7149119867583201399
       type: {class: TeemingCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 6

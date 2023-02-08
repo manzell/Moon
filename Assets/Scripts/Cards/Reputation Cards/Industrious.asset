@@ -21,7 +21,7 @@ MonoBehaviour:
   <VP>k__BackingField: 3
   <conditionText>k__BackingField: 'Have eight or more production symbols '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378111
+    rid: 7149119867583201408
   <ClaimAction>k__BackingField:
     rid: 7149119721755378083
   references:
@@ -29,5 +29,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755378083
       type: {class: NullAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378111
+    - rid: 7149119867583201408
       type: {class: IndustriousCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 8

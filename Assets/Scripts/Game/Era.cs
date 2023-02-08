@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Sirenix.OdinInspector;
-using Unity.Netcode;
-using TMPro;
-using Sirenix.Utilities;
 
 namespace moon
 {
@@ -17,35 +14,34 @@ namespace moon
         [field: SerializeField] public List<Phase> Phases { get; private set; }
         [field: SerializeField] public int Multiplier { get; private set; }
 
-        public List<Turn> Turns { get; private set; }
+        public List<Turn> Turns { get; private set; } = new(); 
 
         public void StartEra()
         {
-            Game.AddCardsToDeck(Deck.OfType<PlayCard>());
-            Game.ShuffleDeck();
-            Game.AddReputationCards(Deck.OfType<ReputationCard>().OrderBy(x => Random.value).Take(Game.GameSettings.ReputationCardsPerEra));
-            Turns = new();
-
-            foreach (Flag flag in Game.Rewards.Keys.Union(Rewards.Keys))
+            foreach (Flag flag in Game.CurrentGame.Rewards.Keys.Union(Rewards.Keys))
             {
-                if (Game.Rewards.ContainsKey(flag))
-                    Game.Rewards[flag].AddRange(Rewards[flag]);
+                if (Game.CurrentGame.Rewards.ContainsKey(flag))
+                    Game.CurrentGame.Rewards[flag].AddRange(Rewards[flag]);
                 else
-                    Game.Rewards.Add(flag, Rewards[flag]);
+                    Game.CurrentGame.Rewards.Add(flag, Rewards[flag]);
             }
 
-            FindObjectOfType<Game>().TriggerStartEraEvent_ClientRpc();
-            Phases.First().StartPhase();
+            Game.CurrentGame.AddRepCards(Deck.OfType<ReputationCard>().OrderBy(x => Random.value)
+                .Take(Game.CurrentGame.GameSettings.ReputationCardsPerEra)); 
+            Game.CurrentGame.AddCardsToDeck(Deck.OfType<PlayCard>());
+            Game.CurrentGame.ShuffleDeck();
+                        
+            Game.CurrentGame.StartPhase();
         }
 
         public void NextEra()
         {
-            FindObjectOfType<Game>().TriggerEndEraEvent_ClientRpc();
+            Game.CurrentGame.TriggerEndEraEvent_ClientRpc();
 
-            if (Game.Eras.TryPeek(out Era era))
+            if (Game.CurrentGame.Eras.TryPeek(out Era era))
                 era.StartEra();
             else
-                Game.EndGame();
+                Game.CurrentGame.EndGame();
         }
     }
 }

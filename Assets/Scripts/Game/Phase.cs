@@ -1,7 +1,7 @@
+using Sirenix.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace moon
@@ -13,23 +13,17 @@ namespace moon
 
         protected abstract void OnPhase();
 
-        public void StartPhase()
-        {
-            Game.CurrentPhase = this;
-            GameObject.FindObjectOfType<Game>().TriggerStartPhaseEvent_ClientRpc();
-            OnPhase(); 
-        }
+        public void StartPhase() => OnPhase(); 
 
         public void NextPhase()
         {
-            GameObject.FindObjectOfType<Game>().TriggerEndPhaseEvent_ClientRpc();
+            int i = Game.CurrentGame.CurrentEra.Phases.IndexOf(this) + 1;
+            Game.CurrentGame.TriggerEndPhaseEvent_ClientRpc();
 
-            int i = Game.CurrentEra.Phases.IndexOf(this) + 1;
-
-            if (Game.CurrentEra.Phases.Count > i)
-                Game.CurrentEra.Phases[i].StartPhase();
+            if (Game.CurrentGame.CurrentEra.Phases.Count > i)
+                Game.CurrentGame.StartPhase(); 
             else
-                Game.CurrentEra.NextEra();
+                Game.CurrentGame.CurrentEra.NextEra();
         }
     }
 
@@ -37,19 +31,17 @@ namespace moon
     {
         protected async override void OnPhase()
         {
-            foreach (Player player in Game.Players)
+            foreach(Player player in Game.CurrentGame.Players)
             {
+                player.AddResources(new List<Resource>() { player.BaseCard.ProductionResource });
+
                 foreach (ResourceCard card in player.Tableau)
                 {
-                    List<Resource> resources = await card.productionAction.Production();
-                    Debug.Log(resources.Count); 
-
-                    player.AddResources(resources); 
+                    List<Resource> resources = await card.productionAction.Production(Game.CurrentGame.Player);
+                    Game.CurrentGame.Player.AddResources(resources);
                 }
-
-                player.AddResources(new List<Resource>() { player.BaseCard.ProductionResource });
             }
-
+            
             NextPhase();
         }
     }
@@ -60,36 +52,26 @@ namespace moon
 
         protected override void OnPhase()
         {
-            UI_Game ui = GameObject.FindObjectOfType<UI_Game>();
-            ui.SetMessage("Construction Phase OnPhase()");
-
-            DealStartingCards();
-
-            Rounds = new(); 
-            Rounds.Add(new Round());
+            DealEraCards();
+            Game.CurrentGame.StartRound(); 
         }
 
-        public void DealStartingCards()
+        public void DealEraCards()
         {
             int cardsToDeal = 6;
-            int playerCount = Game.Players.Count;
+            int playerCount = Game.CurrentGame.Players.Count;
 
             if (playerCount < 4) cardsToDeal++;
             if (playerCount < 3) cardsToDeal++;
 
-            Debug.Log($"Dealing {cardsToDeal} cards to {playerCount} {(playerCount == 1 ? "Players" : "Player")}");
+            Debug.Log($"Dealing {cardsToDeal} cards to {playerCount} {(playerCount == 1 ? "Players" : "Player")} from deck of {Game.CurrentGame.Deck.Count} Cards");
 
             for (int i = 0; i < cardsToDeal; i++)
             {
-                foreach (Player player in Game.Players)
+                foreach (Player player in Game.CurrentGame.Players)
                 {
-                    if (Game.Deck.Count > 0 && player.Hand.OfType<PlayCard>().Count() < cardsToDeal)
-                    {
-                        Card card = Game.Deck.Pop();
-                        Debug.Log($"Dealing {card.name} to {player.name}");
-                        
-                        player.AddCardToHand(card);
-                    }
+                    if (player.Hand.OfType<PlayCard>().Count() < cardsToDeal && Game.CurrentGame.Deck.Any())
+                        player.AddCardToHand(Game.CurrentGame.Deck.Pop());
                 }
             }
         }
@@ -100,28 +82,27 @@ namespace moon
         public static System.Action<Flag, Player, List<Resource>> FlagRewardEvent; 
         protected override void OnPhase()
         {
-            ScoreFlagRewards();
-
-            foreach (Player player in Game.Players)
+            foreach (Player player in Game.CurrentGame.Players)
                 GiveVPCardRewards(player);
 
+            ScoreFlagRewards();
             NextPhase(); 
         }
 
         public void ScoreFlagRewards()
         {
-            foreach (Flag flag in Game.Rewards.Keys)
+            foreach (Flag flag in Game.CurrentGame.Rewards.Keys)
             {
-                int max = Game.Players.Max(player => player.Flags.Count(f => f == flag));
-                IEnumerable<Player> qualifyingPlayers = Game.Players.Where(player => player.Flags.Count(f => f == flag) == max);
-                List<Resource> reward = Game.Rewards[flag]; 
+                int max = Game.CurrentGame.Players.Max(player => player.Flags.Count(f => f == flag));
+                IEnumerable<Player> qualifyingPlayers = Game.CurrentGame.Players.Where(player => player.Flags.Count(f => f == flag) == max);
+                List<Resource> reward = Game.CurrentGame.Rewards[flag]; 
 
                 if (qualifyingPlayers.Count() == 1)
                 {
                     qualifyingPlayers.First().AddResources(reward);
 
                     FlagRewardEvent?.Invoke(flag, qualifyingPlayers.First(), reward);
-                    Game.Rewards[flag].Clear();
+                    Game.CurrentGame.Rewards[flag].Clear();
                 }
             }
         }
@@ -131,15 +112,13 @@ namespace moon
             foreach (VictoryCard card in player.Tableau)
             {
                 player.AddResources(card.CardResources);
-
-                for(int i = 0; i < card.VP.Value(player); i++)
-                    player.AddResources(new List<Resource>() { Game.Resources.vp }); 
+                player.AddResources(Enumerable.Repeat(Game.Resources.vp, card.VP.Value(player)));
             }
         }
     }
 
     public class FinalScoring : Phase
     {
-        protected override void OnPhase() => Game.EndGame(); 
+        protected override void OnPhase() => Game.CurrentGame.EndGame(); 
     }
 }

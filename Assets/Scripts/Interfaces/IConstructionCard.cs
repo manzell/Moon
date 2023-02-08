@@ -8,7 +8,9 @@ namespace moon
     {
         public Player Rover { get; }
         public void SetRover(Player player); 
-        public IEnumerable<GameObject> Icons { get; }
+
+        public IEnumerable<IIcon> Icons { get; }
+        public IEnumerable<IIcon> Resources { get; }
 
         public System.Action<Player> AddRoverEvent { get; set; }
         public System.Action RemoveRoverEvent { get; set; }

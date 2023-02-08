@@ -13,7 +13,7 @@ namespace moon
             Debug.Log("UI_Hand Area Drop");
 
             if (eventData.selectedObject.TryGetComponent(out UI_ReputationCard UI))
-                FindObjectOfType<Game>().ClaimReputation_ServerRpc(Game.Player.OwnerClientId, UI.Card.ID); 
+                new ClaimReputationAction(UI.Card).Execute(Game.CurrentGame.Player); 
         }
     }
 }

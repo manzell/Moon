@@ -21,7 +21,7 @@ MonoBehaviour:
   <VP>k__BackingField: 3
   <conditionText>k__BackingField: 'Have 3 or more flipped pink structures '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378105
+    rid: 7149119867583201413
   <ClaimAction>k__BackingField:
     rid: 7149119721755378082
   references:
@@ -29,5 +29,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755378082
       type: {class: NullAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378105
+    - rid: 7149119867583201413
       type: {class: CreativeCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 3

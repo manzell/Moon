@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,7 +20,5 @@ namespace moon
         public GameObject VictoryCardPrefab => victoryCardPrefab;
         public UI_SelectionWindow SelectionPrefab => selectionPrefab; 
         public Dictionary<Card.CardType, Color> CardTypeColors => cardTypeColors;
-
-
     }
 }

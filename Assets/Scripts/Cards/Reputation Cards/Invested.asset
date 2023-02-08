@@ -22,7 +22,7 @@ MonoBehaviour:
   <conditionText>k__BackingField: 'Have nine or more yellow structures, including
     base '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378113
+    rid: 7149119867583201406
   <ClaimAction>k__BackingField:
     rid: 7149119721755378079
   references:
@@ -30,5 +30,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755378079
       type: {class: NullAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378113
+    - rid: 7149119867583201406
       type: {class: InvestedCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 8

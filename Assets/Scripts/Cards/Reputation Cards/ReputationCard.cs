@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Linq;
 using UnityEngine;
 
@@ -36,16 +35,17 @@ namespace moon
 
     public class SynchronizedCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 2;
         protected override bool Calculate(Player player)
         {
-            int required = 2; 
             IEnumerable<VictoryCard> grayCards = player.Tableau.OfType<VictoryCard>();
-            return grayCards.Any(card => grayCards.Count(c => c == card) >= required);
+            return grayCards.Any(card => grayCards.Count(c => c == card) >= numRequired);
         }
     }
 
     public class OmnipotentCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int setsRequired = 3;
         protected override bool Calculate(Player player)
         {
             int gray = player.Tableau.OfType<ActionCard>().Count(); 
@@ -53,72 +53,80 @@ namespace moon
             int blue = player.Tableau.OfType<ResourceCard>().Count();
             int pink = player.Tableau.OfType<VictoryCard>().Count();
 
-            return Mathf.Min(gray, yellow, blue, pink) >= 3; 
+            return Mathf.Min(gray, yellow, blue, pink) >= setsRequired; 
         }
     }
 
     public class FuturisticCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 2;
         protected override bool Calculate(Player player)
         {
-            return player.Tableau.OfType<ResourceCard>().Count(card => card.CardResources.Count() >= 3) >= 2;
+            return player.Tableau.OfType<ResourceCard>().Count(card => card.CardResources.Count() >= 3) >= numRequired;
         }
     }
 
     public class InvestedCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 8;
         protected override bool Calculate(Player player)
         {
-            return player.Tableau.OfType<FlagCard>().Count() >= 8; 
+            return player.Tableau.OfType<FlagCard>().Count() >= numRequired; 
         }
     }
 
     public class BombasticCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 2;
         protected override bool Calculate(Player player)
         {
-            return player.Tableau.OfType<FlagCard>().Count(card => card.FlagRequirements.Count() >= 3) >= 2; 
+            return player.Tableau.OfType<FlagCard>().Count(card => card.FlagRequirements.Count() >= 3) >= numRequired; 
         }
     }
 
     public class ProsperousCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 3;
         protected override bool Calculate(Player player)
         {
             return Mathf.Min(player.Resources.Count(res => res == Game.Resources.metals), player.Resources.Count(res => res == Game.Resources.water), 
-                player.Resources.Count(res => res == Game.Resources.energy), player.Resources.Count(res => res == Game.Resources.organics)) >= 3;
+                player.Resources.Count(res => res == Game.Resources.energy), player.Resources.Count(res => res == Game.Resources.organics)) >= numRequired;
         }
     }
 
     public class CapableCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 7; 
         protected override bool Calculate(Player player)
         {
-            return Game.CurrentTurn.Actions.OfType<BuildAction>().Sum(action => (action.Card as PlayCard).ResourceRequirements.Count()) >= 7;
+            return Game.CurrentGame.CurrentTurn.Actions.OfType<BuildAction>().Sum(action => (action.Card as PlayCard).ResourceRequirements.Count()) >= numRequired;
         }
     }
 
     public class AmbitiousCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 3;
         protected override bool Calculate(Player player)
         {
-            return player.Tableau.OfType<VictoryCard>().Count() >= 3; 
+            return player.Tableau.OfType<VictoryCard>().Count() >= numRequired; 
         }
     }
 
     public class TeemingCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 6;
         protected override bool Calculate(Player player)
         {
-            return player.Tableau.OfType<IConstructionCard>().Count(card => card.Rover != null) >= 6; 
+            return player.Tableau.OfType<IConstructionCard>().Count(card => card.Rover != null) >= numRequired; 
         }
     }
 
     public class DynamicCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 5;
         protected override bool Calculate(Player player)
         {
-            return player.Tableau.OfType<ResourceCard>().Count() >= 5; 
+            return player.Tableau.OfType<ResourceCard>().Count() >= numRequired; 
         }
     }
 
@@ -126,52 +134,59 @@ namespace moon
     {
         protected override bool Calculate(Player player)
         {
-            return Mathf.Min(player.Flags.Count(flag => flag == Game.Flags.food), player.Flags.Count(flag => flag == Game.Flags.science),
-                player.Flags.Count(flag => flag == Game.Flags.housing), player.Flags.Count(flag => flag == Game.Flags.transportation), 
-                player.Flags.Count(flag => flag == Game.Flags.production)) >= 1;
+            return player.Flags.Contains(Game.Flags.food) && player.Flags.Contains(Game.Flags.science) && player.Flags.Contains(Game.Flags.housing) &&
+                player.Flags.Contains(Game.Flags.transportation) && player.Flags.Contains(Game.Flags.food);
         }
     }
 
     public class FocusedCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 6; 
         protected override bool Calculate(Player player)
         {
             return Mathf.Max(player.Flags.Count(flag => flag == Game.Flags.food), player.Flags.Count(flag => flag == Game.Flags.science),
                 player.Flags.Count(flag => flag == Game.Flags.housing), player.Flags.Count(flag => flag == Game.Flags.transportation),
-                player.Flags.Count(flag => flag == Game.Flags.production)) >= 6;
+                player.Flags.Count(flag => flag == Game.Flags.production)) >= numRequired;
         }
     }
 
     public class IndustriousCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 8;
         protected override bool Calculate(Player player)
         {
-            return player.Tableau.OfType<ResourceCard>().Sum(card => card.CardResources.Count()) >= 8; 
+            return player.Tableau.OfType<ResourceCard>().Sum(card => card.CardResources.Count()) >= numRequired; 
         }
     }
 
     public class CreativeCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 3;
+
         protected override bool Calculate(Player player)
         {
-            return player.Tableau.OfType<ActionCard>().Count(card => card.FlipAction.used == true) >= 3; 
+            return player.Tableau.OfType<ActionCard>().Count(card => card.FlipAction.used == true) >= numRequired; 
         }
     }
 
     public class ProactiveCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 4;
+
         protected override bool Calculate(Player player)
         {
-            return Game.CurrentTurn.Actions.OfType<BuildAction>().Sum(action => (action.Card as PlayCard).ResourceRequirements.Count()) >= 4;
+            return Game.CurrentGame.CurrentTurn.Actions.OfType<BuildAction>().Sum(action => (action.Card as PlayCard).ResourceRequirements.Count()) >= numRequired;
         }
     }
 
     public class StockedCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 5;
+
         protected override bool Calculate(Player player)
         {
             return Mathf.Max(player.Resources.Count(res => res == Game.Resources.metals), player.Resources.Count(res => res == Game.Resources.water),
-                player.Resources.Count(res => res == Game.Resources.energy), player.Resources.Count(res => res == Game.Resources.organics)) >= 5;
+                player.Resources.Count(res => res == Game.Resources.energy), player.Resources.Count(res => res == Game.Resources.organics)) >= numRequired;
         }
     }
 
@@ -185,11 +200,12 @@ namespace moon
 
     public class DistinctiveCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 3;
         protected override bool Calculate(Player player)
         {
             return Mathf.Max(player.Flags.Count(flag => flag == Game.Flags.food), player.Flags.Count(flag => flag == Game.Flags.science),
                 player.Flags.Count(flag => flag == Game.Flags.housing), player.Flags.Count(flag => flag == Game.Flags.transportation),
-                player.Flags.Count(flag => flag == Game.Flags.production)) >= 3 ;
+                player.Flags.Count(flag => flag == Game.Flags.production)) >= numRequired;
         }
     }
 
@@ -197,24 +213,26 @@ namespace moon
     {
         protected override bool Calculate(Player player)
         {
-            return Game.CurrentTurn?.Actions.OfType<AssimilateAction>().Count() > 0; 
+            return Game.CurrentGame.CurrentTurn?.Actions.OfType<AssimilateAction>().Count() > 0; 
         }
     }
 
     public class SpecializedCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 2;
         protected override bool Calculate(Player player)
         {
             IEnumerable<ResourceCard> cards = player.Tableau.OfType<ResourceCard>();
-            return cards.Any(card => cards.Count(c => c == card) >= 2);
+            return cards.Any(card => cards.Count(c => c == card) >= numRequired);
         }
     }
 
     public class InnovativeCalc : Calculation<bool>, IReputationCalc
     {
+        [SerializeField] int numRequired = 3;
         protected override bool Calculate(Player player)
         {
-            return player.Tableau.Sum(card => card.CardResources.Count(res => res == Game.Resources.vp)) >= 3; 
+            return player.Tableau.Sum(card => card.CardResources.Count(res => res == Game.Resources.vp)) >= numRequired; 
         }
     }
 
@@ -231,6 +249,7 @@ namespace moon
     {
         protected override void Do(Player player)
         {
+            throw new System.NotImplementedException(); 
         }
     }
 
@@ -247,7 +266,7 @@ namespace moon
             {
                 List<Resource> vps = new(); 
 
-                for(int i = 0; i < Game.CurrentEra.Multiplier; i++)
+                for(int i = 0; i < Game.CurrentGame.CurrentEra.Multiplier; i++)
                     vps.Add(Game.Resources.vp);
 
                 Player.AddResources(vps); 
@@ -265,7 +284,7 @@ namespace moon
             {
                 List<Resource> vps = new();
 
-                for (int i = 0; i < Game.CurrentEra.Multiplier; i++)
+                for (int i = 0; i < Game.CurrentGame.CurrentEra.Multiplier; i++)
                     vps.Add(Game.Resources.vp);
 
                 Player.AddResources(vps);
@@ -279,7 +298,7 @@ namespace moon
 
         void TakeHeartOnRoverAction(TurnAction turn)
         {
-            if (turn is RoverAction && turn.Player == Player)
+            if (turn is RoverAction && turn.Player == Player) 
                 Player.AddResources(new List<Resource>() { Game.Resources.vp});
         }
     }
@@ -291,14 +310,7 @@ namespace moon
         void TakeHeartOnFlip(TurnAction action)
         {
             if (action is FlipAction && action.Player == Player)
-            {
-                List<Resource> vps = new();
-
-                for (int i = 0; i < Game.CurrentEra.Multiplier; i++)
-                    vps.Add(Game.Resources.vp);
-
-                Player.AddResources(vps);
-            }
+                Player.AddResources(Enumerable.Repeat(Game.Resources.vp, Game.CurrentGame.CurrentEra.Multiplier)); 
         }
     }
 
@@ -308,17 +320,17 @@ namespace moon
 
         void TakeHeartsForStructureSets()
         {
-                int action = Player.Tableau.OfType<ActionCard>().Count();
-                int resource = Player.Tableau.OfType<ResourceCard>().Count();
-                int flag = Player.Tableau.OfType<FlagCard>().Count();
-                int victory = Player.Tableau.OfType<VictoryCard>().Count();
+            int action = Player.Tableau.OfType<ActionCard>().Count();
+            int resource = Player.Tableau.OfType<ResourceCard>().Count();
+            int flag = Player.Tableau.OfType<FlagCard>().Count();
+            int victory = Player.Tableau.OfType<VictoryCard>().Count();
 
-                List<Resource> vps = new();
+            List<Resource> vps = new();
 
-                for (int i = 0; i < Game.CurrentEra.Multiplier * Mathf.Min(action, resource, flag, victory); i++)
-                    vps.Add(Game.Resources.vp);
+            for (int i = 0; i < Game.CurrentGame.CurrentEra.Multiplier * Mathf.Min(action, resource, flag, victory); i++)
+                vps.Add(Game.Resources.vp);
 
-                Player.AddResources(vps);
+            Player.AddResources(vps);
         }
     }
 
@@ -327,8 +339,8 @@ namespace moon
         protected override void Do(Player player)
         {
             Phase.PhaseStartEvent += async () => { 
-                Selection<Resource> selection = new(Game.Resources.all);
-                Game.SelectionWindow.SetTitle("Gain one Extra Resource");
+                Selection<Resource> selection = new(player, Game.Resources.all);
+                Game.CurrentGame.SelectionWindow.SetTitle("Gain one Extra Resource");
 
                 await selection.Completion;
 
@@ -341,7 +353,7 @@ namespace moon
     {
         protected override void Do(Player player)
         {
-            // There must be an event when the player starts a purchase that modifies the 
+            throw new System.NotImplementedException(); 
         }
     }
 }

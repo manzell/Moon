@@ -20,16 +20,16 @@ namespace moon
 
         public void Setup()
         {
-            Game.Player.AddResourcesEvent += r => { if (r.Any(resource => resource == Game.Resources.rover)) Style(); };
-            Game.Player.LoseResourcesEvent += r => { if (r.Any(resource => resource == Game.Resources.rover)) Style(); };
+            Game.CurrentGame.Player.AddResourcesEvent += r => { if (r.Any(resource => resource == Game.Resources.rover)) Style(); };
+            Game.CurrentGame.Player.LoseResourcesEvent += r => { if (r.Any(resource => resource == Game.Resources.rover)) Style(); };
             Style();
         }
 
-        void Style() => count.text = Game.Player.Resources.Count(resource => resource == Game.Resources.rover).ToString(); 
+        void Style() => count.text = Game.CurrentGame.Player.Resources.Count(resource => resource == Game.Resources.rover).ToString(); 
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (Game.Player.Resources.Count(resource => resource == Game.Resources.rover) >= 1)
+            if (Game.CurrentGame.Player.Resources.Count(resource => resource == Game.Resources.rover) >= 1)
             {
                 rover = Instantiate(roverImage.gameObject, transform);
                 rect = rover.GetComponent<RectTransform>();

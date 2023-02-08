@@ -1,9 +1,6 @@
-using Sirenix.Utilities;
-using System.Collections;
-using System.Collections.Generic;
+
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI; 
 using UnityEngine.EventSystems;
 
 namespace moon
@@ -40,7 +37,7 @@ namespace moon
                         backgroundImage.color = gold;
                 }
 
-                if (repCard.CanClaim.Value(Game.Player))
+                if (repCard.CanClaim.Value(Game.CurrentGame.Player))
                     GetComponent<CanvasGroup>().alpha = 0.5f;
                 else
                     GetComponent<CanvasGroup>().alpha = 1f; 
@@ -49,8 +46,8 @@ namespace moon
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (Game.CurrentTurn.Player.IsOwner && (Card as ReputationCard).Owner == null &&
-                (Card as ReputationCard).CanClaim.Value(Game.Player))
+            if (Game.CurrentGame.CurrentTurn.Player.IsOwner && (Card as ReputationCard).Owner == null &&
+                (Card as ReputationCard).CanClaim.Value(Game.CurrentGame.Player))
             {
                 rect = GetComponent<RectTransform>();
                 GetComponent<CanvasGroup>().alpha = 0.7f;
@@ -69,8 +66,8 @@ namespace moon
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (Game.CurrentTurn.Player.IsOwner && (Card as ReputationCard).Owner == null &&
-                (Card as ReputationCard).CanClaim.Value(Game.Player))
+            if (Game.CurrentGame.CurrentTurn.Player.IsOwner && (Card as ReputationCard).Owner == null &&
+                (Card as ReputationCard).CanClaim.Value(Game.CurrentGame.Player))
             {
 
                 //Debug.Log($"22 {Game.CurrentTurn.Player.IsOwner} && {(Card as ReputationCard).Owner == null} && {(Card as ReputationCard).ClaimAction.Can(Game.Player)}");

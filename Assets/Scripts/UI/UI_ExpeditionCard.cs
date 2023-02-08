@@ -25,9 +25,7 @@ namespace moon
             if (Time.time - lastClick < 0.25f && Time.time > lastClick) // Arbitrary Double-click time width;
             {
                 lastClick = Time.time + 2f; // Arbitrary Double-click lock out 
-
-                if (Game.Player == Game.CurrentTurn.Player && Game.Player.Hand.Contains(Card as ExpeditionCard))
-                    FindObjectOfType<Game>().Expedition_ServerRpc(Game.Player.OwnerClientId, Card.ID);
+                new ExpeditionAction(Card as ExpeditionCard).Execute(Game.CurrentGame.Player);
             }
             else
                 lastClick = Time.time;

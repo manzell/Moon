@@ -21,7 +21,7 @@ MonoBehaviour:
   <VP>k__BackingField: 1
   <conditionText>k__BackingField: 'Have five or more of one resource type '
   <CanClaim>k__BackingField:
-    rid: 7149119721755378119
+    rid: 7149119867583201401
   <ClaimAction>k__BackingField:
     rid: 7149119721755377972
   references:
@@ -29,5 +29,7 @@ MonoBehaviour:
     RefIds:
     - rid: 7149119721755377972
       type: {class: StockedAction, ns: moon, asm: Assembly-CSharp}
-    - rid: 7149119721755378119
+    - rid: 7149119867583201401
       type: {class: StockedCalc, ns: moon, asm: Assembly-CSharp}
+      data:
+        numRequired: 5

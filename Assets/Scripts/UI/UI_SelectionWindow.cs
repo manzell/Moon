@@ -29,13 +29,13 @@ namespace moon
 
         public NumberSelection(int min, int max)
         {
-            Game.SelectionWindow.Select(min, max); 
+            Game.CurrentGame.SelectionWindow.Select(min, max); 
         }
         
         public void Select(int i)
         {
             SelectedItem = i;
-            Game.SelectionWindow.Close();
+            Game.CurrentGame.SelectionWindow.Close();
             completion.SetResult(i);
         }
     }
@@ -47,18 +47,18 @@ namespace moon
         public List<T> SelectableItems { get; private set; }
         public T SelectedItem { get; private set; }
 
-        public Selection(IEnumerable<T> items)
+        public Selection(Player player, IEnumerable<T> items)
         {
             SelectableItems = new(items);
             completion = new();
 
-            Game.SelectionWindow.Select(this);
+            Game.CurrentGame.SelectionWindow.Select(this);
         }
 
         public void Select(T item)
         {
             SelectedItem = item;
-            Game.SelectionWindow.Close();
+            Game.CurrentGame.SelectionWindow.Close();
             completion.SetResult(item); 
         }
     }
@@ -80,6 +80,10 @@ namespace moon
             {
                 GameObject _item = Instantiate(item.Prefab, itemArea); 
                 _item.AddComponent<Button>().onClick.AddListener(() => selection.Select(item));
+
+                // Make sure we properly configure our Card Selections. 
+                if(_item.TryGetComponent(out UI_Card ui))
+                    ui.Setup(item as ICard); 
             }
         }
 
